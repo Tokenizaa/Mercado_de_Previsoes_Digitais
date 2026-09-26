@@ -15,6 +15,8 @@ import {
   sellPositionInSupabase,
   resolveMarketInSupabase,
   getPortfolioFromSupabase,
+  getProfileByUsernameFromSupabase,
+  updateOwnProfileInSupabase,
 } from './supabase';
 import { ADAPTER_REGISTRY } from './adapters';
 
@@ -84,6 +86,30 @@ export default {
         const profile = await getAuthenticatedProfile(supabase, authHeader);
         const portfolio = await getPortfolioFromSupabase(supabase, profile.id);
         return new Response(JSON.stringify({ data: portfolio }), { headers: corsHeaders });
+      }
+
+      // 5. GET /api/profile/:username - Perfil público
+      const profileMatch = path.match(/^\/api\/profile\/([^/]+)$/);
+      if (profileMatch && request.method === 'GET') {
+        const username = decodeURIComponent(profileMatch[1]);
+        const profile = await getProfileByUsernameFromSupabase(supabase, username);
+        if (!profile) return new Response(JSON.stringify({ error: 'Perfil não encontrado' }), { status: 404, headers: corsHeaders });
+        return new Response(JSON.stringify({ data: profile }), { headers: corsHeaders });
+      }
+
+      // 6. PATCH /api/profile - Perfil do usuário autenticado
+      if (path === '/api/profile' && request.method === 'PATCH') {
+        const profile = await getAuthenticatedProfile(supabase, authHeader);
+        if (!authHeader || !authHeader.startsWith('Bearer ')) return new Response(JSON.stringify({ error: 'Autenticação obrigatória' }), { status: 401, headers: corsHeaders });
+        const body = (await request.json().catch(() => ({}))) as any;
+        const result = await updateOwnProfileInSupabase(supabase, profile.id, {
+          display_name: body.display_name,
+          bio: body.bio,
+          username: body.username,
+          avatar_url: body.avatar_url,
+        });
+        if (!result.success) return new Response(JSON.stringify({ error: result.error }), { status: 400, headers: corsHeaders });
+        return new Response(JSON.stringify({ success: true, data: result.profile }), { headers: corsHeaders });
       }
 
       // 5. GET /api/markets - Lista de mercados publicáveis

@@ -132,6 +132,22 @@ export const workerApi = {
     return json.data;
   },
 
+
+  async getProfile(username: string): Promise<PredictionProfile | null> {
+    const res = await fetch(`${API_BASE}/profile/${encodeURIComponent(username)}`, { headers: getAuthHeader() });
+    if (res.status === 404) return null;
+    if (!res.ok) throw new Error('Falha ao buscar perfil');
+    const json = await res.json();
+    return json.data || null;
+  },
+
+  async updateProfile(changes: { display_name?: string; bio?: string; username?: string; avatar_url?: string | null }): Promise<PredictionProfile> {
+    const res = await fetch(`${API_BASE}/profile`, { method: 'PATCH', headers: { 'Content-Type': 'application/json', ...getAuthHeader() }, body: JSON.stringify(changes) });
+    const json = await res.json().catch(() => ({}));
+    if (!res.ok) throw new Error(json.error || 'Não foi possível atualizar o perfil');
+    return json.data;
+  },
+
   /**
    * Criação de novo mercado com validação de auditabilidade
    */

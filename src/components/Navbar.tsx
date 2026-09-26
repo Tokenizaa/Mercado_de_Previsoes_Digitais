@@ -1,8 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { marketStore } from '../services/store';
-import { supabase } from '../services/api';
-import { User } from '../types/market';
-import { Coins, UserCheck, ShieldCheck, Home, Compass, BookmarkCheck, User as UserIcon } from 'lucide-react';
+import { supabase, workerApi } from '../services/api';
+import { Coins, ShieldCheck, Home, Compass, BookmarkCheck, User as UserIcon } from 'lucide-react';
 
 interface NavbarProps {
   currentPath: string;
@@ -10,8 +8,7 @@ interface NavbarProps {
 }
 
 export const Navbar: React.FC<NavbarProps> = ({ currentPath, onNavigate }) => {
-  const [user, setUser] = useState<User>(marketStore.getCurrentUser());
-  const [users, setUsers] = useState<User[]>(marketStore.getUsers());
+  const [user, setUser] = useState<any>(null);
   const [showUserDropdown, setShowUserDropdown] = useState(false);
   const [session, setSession] = useState<any>(null);
 
@@ -22,12 +19,9 @@ export const Navbar: React.FC<NavbarProps> = ({ currentPath, onNavigate }) => {
   }, []);
 
   useEffect(() => {
-    const unsubscribe = marketStore.subscribe(() => {
-      setUser(marketStore.getCurrentUser());
-      setUsers(marketStore.getUsers());
-    });
-    return unsubscribe;
-  }, []);
+    if (!session) { setUser(null); return; }
+    workerApi.getPortfolio().then(({ profile }) => setUser(profile)).catch(() => setUser(null));
+  }, [session]);
 
   const navLinks = [
     { label: 'Início', path: '/' },
@@ -118,33 +112,6 @@ export const Navbar: React.FC<NavbarProps> = ({ currentPath, onNavigate }) => {
                     </div>
                   </div>
 
-                  <div className="text-[12px] font-bold text-[#5F6368] uppercase tracking-wider mb-2">
-                    Trocar Perfil de Teste
-                  </div>
-
-                  <div className="space-y-1">
-                    {users.map((u) => (
-                      <button
-                        key={u.id}
-                        onClick={() => {
-                          marketStore.switchUser(u.id);
-                          setShowUserDropdown(false);
-                        }}
-                        className={`w-full flex items-center justify-between p-2.5 rounded-xl text-left transition-colors ${
-                          u.id === user.id
-                            ? 'bg-[#E5E7E9]/70 font-bold text-[#202124]'
-                            : 'hover:bg-[#F7F8F7] text-[#5F6368]'
-                        }`}
-                      >
-                        <div className="truncate">
-                          <div className="text-sm font-semibold">{u.name}</div>
-                          <div className="text-xs text-[#5F6368]">@{u.username}</div>
-                        </div>
-                        {u.id === user.id && <UserCheck className="w-4 h-4 text-[#009344] shrink-0" />}
-                      </button>
-                    ))}
-                  </div>
-
                   <div className="mt-3 pt-3 border-t border-[#E5E7E9] flex justify-between items-center text-xs">
                     <button
                       onClick={() => {
@@ -200,7 +167,7 @@ export const Navbar: React.FC<NavbarProps> = ({ currentPath, onNavigate }) => {
         </button>
 
         <button
-          onClick={() => onNavigate(`/perfil/${user.username}`)}
+          onClick={() => user && onNavigate(`/perfil/${user.username}`)}
           className={`flex flex-col items-center gap-0.5 py-1 px-3 rounded-xl transition-colors ${
             currentPath.startsWith('/perfil') ? 'text-[#009344] font-bold' : 'text-[#5F6368]'
           }`}

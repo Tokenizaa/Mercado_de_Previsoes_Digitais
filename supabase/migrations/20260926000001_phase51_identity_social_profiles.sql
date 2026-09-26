@@ -177,7 +177,7 @@ BEGIN
     END IF;
 
     IF attempt > 20 THEN
-      candidate := 'user_' || substr(replace(NEW.id::text, '-', ''), 1, 16);
+      candidate := 'user_' || substr(replace(NEW.id::text, '-', ''), 1, 15);
       EXIT;
     END IF;
   END LOOP;

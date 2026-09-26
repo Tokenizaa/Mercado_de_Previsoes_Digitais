@@ -77,13 +77,21 @@ export const AdminDemo: React.FC<AdminDemoProps> = ({ onNavigate }) => {
           </p>
         </div>
 
-        <button
-          onClick={handleReset}
-          className="px-3 py-2 bg-neutral-100 hover:bg-neutral-200 text-neutral-800 rounded-lg text-xs font-semibold flex items-center gap-1.5 self-start sm:self-auto"
-        >
-          <RefreshCw className="w-3.5 h-3.5" />
-          <span>Restaurar Seed Padrão</span>
-        </button>
+        <div className="flex items-center gap-2 self-start sm:self-auto">
+          <button
+            onClick={() => onNavigate('/criar')}
+            className="px-3 py-2 bg-[#009344] hover:bg-[#007A38] text-white rounded-lg text-xs font-semibold flex items-center gap-1.5"
+          >
+            <span>+ Cadastrar Palpite</span>
+          </button>
+          <button
+            onClick={handleReset}
+            className="px-3 py-2 bg-neutral-100 hover:bg-neutral-200 text-neutral-800 rounded-lg text-xs font-semibold flex items-center gap-1.5"
+          >
+            <RefreshCw className="w-3.5 h-3.5" />
+            <span>Restaurar Seed</span>
+          </button>
+        </div>
       </div>
 
       {feedback && (

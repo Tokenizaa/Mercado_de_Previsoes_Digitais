@@ -1,6 +1,6 @@
 import React from 'react';
 import { Market } from '../types/market';
-import { CheckCircle2, Clock, Sparkles } from 'lucide-react';
+import { CheckCircle2, Clock, ChevronRight } from 'lucide-react';
 
 interface MarketCardProps {
   market: Market;
@@ -8,125 +8,138 @@ interface MarketCardProps {
 }
 
 export const MarketCard: React.FC<MarketCardProps> = ({ market, onSelect }) => {
-  const categoryLabels: Record<string, string> = {
-    internet_creators: 'Internet & Creators',
-    esportes: 'Esportes',
-    musica: 'Música',
-    entretenimento: 'Entretenimento',
-  };
-
-  const typeLabels: Record<string, string> = {
-    RESULTADO: 'Resultado',
-    LIMIAR: 'Limiar',
-    METRICA: 'Métrica',
-    RANKING: 'Ranking',
-  };
-
-  // Encontra a opção líder
-  const leadingOption = [...market.options].sort(
-    (a, b) => b.current_probability - a.current_probability
-  )[0];
-
   const isResolved = market.status === 'DISTRIBUTED' || market.status === 'RESOLVED';
+  const isClosed = market.status === 'CLOSED' || market.status === 'AWAITING_RESULT' || isResolved;
 
-  // Formata data de fechamento
+  // Formatação de prazo amigável em português
   const closeDate = new Date(market.close_at);
   const formattedClose = closeDate.toLocaleDateString('pt-BR', {
     day: '2-digit',
     month: 'short',
+    hour: '2-digit',
+    minute: '2-digit',
   });
+
+  const winnerOption = market.options.find((o) => o.result === 'WINNER');
 
   return (
     <article
       onClick={() => onSelect(market.slug)}
-      className="group cursor-pointer bg-white rounded-xl border border-neutral-200/90 hover:border-neutral-400/80 transition-all duration-200 overflow-hidden flex flex-col justify-between h-full"
+      className="group cursor-pointer bg-white rounded-3xl border border-[#E5E7E9] hover:border-[#009344] transition-all duration-200 overflow-hidden shadow-xs hover:shadow-md flex flex-col justify-between"
     >
       <div>
-        {/* Imagem do Evento com fallback resiliente */}
+        {/* Imagem do Evento */}
         {market.image_url && (
-          <div className="relative aspect-[16/9] w-full overflow-hidden bg-neutral-100 border-b border-neutral-100">
+          <div className="relative aspect-[16/10] w-full overflow-hidden bg-[#F7F8F7]">
             <img
               src={market.image_url}
               alt={market.title}
               referrerPolicy="no-referrer"
-              className="w-full h-full object-cover group-hover:scale-[1.02] transition-transform duration-300"
+              className="w-full h-full object-cover group-hover:scale-102 transition-transform duration-300"
               onError={(e) => {
-                // Fallback visual silencioso sem quebrar layout
                 (e.currentTarget as HTMLElement).style.display = 'none';
               }}
             />
-            {isResolved && (
-              <div className="absolute top-2.5 right-2.5 bg-neutral-900/90 backdrop-blur-xs text-white text-[11px] font-semibold px-2.5 py-1 rounded-md flex items-center gap-1.5">
-                <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400" />
-                <span>Resolvido</span>
-              </div>
-            )}
+
+            {/* Badge de Status Simples */}
+            <div className="absolute top-3 left-3">
+              {isResolved ? (
+                <div className="bg-[#202124]/90 backdrop-blur-xs text-white text-[13px] font-bold px-3 py-1.5 rounded-full flex items-center gap-1.5 shadow-sm">
+                  <CheckCircle2 className="w-4 h-4 text-[#009344]" />
+                  <span>Saiu o resultado</span>
+                </div>
+              ) : isClosed ? (
+                <div className="bg-amber-600/90 backdrop-blur-xs text-white text-[13px] font-bold px-3 py-1.5 rounded-full shadow-sm">
+                  Esperando o resultado
+                </div>
+              ) : (
+                <div className="bg-[#009344] text-white text-[13px] font-bold px-3 py-1.5 rounded-full shadow-sm">
+                  Ainda dá para participar
+                </div>
+              )}
+            </div>
           </div>
         )}
 
-        <div className="p-5">
-          {/* Metadata unboxed com separadores tipográficos (Zero-pill discipline) */}
-          <div className="flex items-center gap-2 text-xs text-neutral-500 mb-2.5 flex-wrap">
-            <span className="font-medium text-neutral-700">
-              {categoryLabels[market.category] || market.category}
-            </span>
-            <span aria-hidden="true" className="text-neutral-300">·</span>
-            <span>Tipo {typeLabels[market.market_type]}</span>
-            <span aria-hidden="true" className="text-neutral-300">·</span>
-            <span className="flex items-center gap-1">
-              <Clock className="w-3 h-3 text-neutral-400" />
-              <span>Fecha em {formattedClose}</span>
+        <div className="p-6">
+          {/* Prazo Curto e Direto */}
+          <div className="flex items-center gap-1.5 text-sm font-semibold text-[#5F6368] mb-2">
+            <Clock className="w-4 h-4 text-[#5F6368]" />
+            <span>
+              {isResolved
+                ? 'Concluído'
+                : isClosed
+                ? 'Já fechou'
+                : `Fecha em ${formattedClose}`}
             </span>
           </div>
 
-          {/* Título / Pergunta do Mercado */}
-          <h3 className="font-semibold text-neutral-900 text-base leading-snug group-hover:text-neutral-700 transition-colors mb-3 line-clamp-2">
+          {/* PERGUNTA GRANDE (22–26px, bold 700) */}
+          <h3 className="font-extrabold text-[22px] sm:text-[24px] text-[#202124] leading-snug group-hover:text-[#007A38] transition-colors mb-5 line-clamp-3">
             {market.title}
           </h3>
 
-          {/* Opções e Probabilidade */}
-          <div className="space-y-2 mb-4">
-            {market.options.slice(0, 2).map((opt) => (
-              <div key={opt.id} className="space-y-1">
-                <div className="flex items-center justify-between text-xs">
-                  <span className="text-neutral-700 font-medium truncate max-w-[200px]">
-                    {opt.label}
-                  </span>
-                  <span className="font-bold text-neutral-900 tabular-nums">
-                    {opt.current_probability}%
-                  </span>
+          {/* ESCOLHAS GRANDES */}
+          <div className="space-y-3 mb-6">
+            {market.options.slice(0, 3).map((opt) => {
+              const isWinner = opt.result === 'WINNER';
+
+              return (
+                <div
+                  key={opt.id}
+                  className={`p-3.5 rounded-2xl border transition-all ${
+                    isWinner
+                      ? 'border-[#009344] bg-[#009344]/5'
+                      : 'border-[#E5E7E9] bg-[#F7F8F7]'
+                  }`}
+                >
+                  <div className="flex items-center justify-between">
+                    <span className="font-bold text-[#202124] text-[16px] truncate max-w-[210px]">
+                      {opt.label}
+                    </span>
+                    <span className="font-extrabold text-[16px] text-[#007A38] tabular-nums">
+                      {opt.current_probability}% de chance
+                    </span>
+                  </div>
+
+                  {/* Barra de Chance Simples */}
+                  <div className="w-full h-2 bg-[#E5E7E9] rounded-full overflow-hidden mt-2">
+                    <div
+                      className={`h-full rounded-full transition-all duration-300 ${
+                        isWinner ? 'bg-[#009344]' : 'bg-[#007A38]'
+                      }`}
+                      style={{ width: `${opt.current_probability}%` }}
+                    />
+                  </div>
                 </div>
-                {/* Barra de probabilidade sutil */}
-                <div className="w-full h-1.5 bg-neutral-100 rounded-full overflow-hidden">
-                  <div
-                    className="h-full bg-neutral-900 rounded-full transition-all duration-300"
-                    style={{ width: `${opt.current_probability}%` }}
-                  />
-                </div>
-              </div>
-            ))}
-            {market.options.length > 2 && (
-              <div className="text-[11px] text-neutral-400 pt-0.5">
-                + {market.options.length - 2} outras opções
+              );
+            })}
+
+            {market.options.length > 3 && (
+              <div className="text-center text-xs font-bold text-[#5F6368] pt-1">
+                + mais {market.options.length - 3} opções
               </div>
             )}
           </div>
         </div>
       </div>
 
-      {/* Rodapé do Card */}
-      <div className="px-5 py-3.5 bg-neutral-50/70 border-t border-neutral-100 flex items-center justify-between text-xs text-neutral-500">
-        <div>
-          <span>Pool: </span>
-          <span className="font-semibold text-neutral-900 tabular-nums">
-            {market.total_pool.toLocaleString('pt-BR')}
-          </span>
-          <span className="text-neutral-400"> Créditos</span>
-        </div>
-
-        <div className="truncate max-w-[130px] text-right text-neutral-500">
-          Fonte: <span className="text-neutral-700 font-medium">{market.source_name || 'Auditada'}</span>
-        </div>
+      {/* BOTÃO GRANDE DE AÇÃO (mínimo 52px de altura) */}
+      <div className="p-6 pt-0">
+        <button
+          onClick={(e) => {
+            e.stopPropagation();
+            onSelect(market.slug);
+          }}
+          className={`w-full h-[52px] rounded-2xl font-extrabold text-[17px] flex items-center justify-center gap-2 transition-all shadow-sm ${
+            isResolved
+              ? 'bg-[#202124] hover:bg-[#333] text-white'
+              : 'bg-[#009344] hover:bg-[#007A38] text-white'
+          }`}
+        >
+          <span>{isResolved ? 'Ver o resultado' : 'Dar meu palpite'}</span>
+          <ChevronRight className="w-5 h-5" />
+        </button>
       </div>
     </article>
   );

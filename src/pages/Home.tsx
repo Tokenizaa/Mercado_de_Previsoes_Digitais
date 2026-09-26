@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { marketStore } from '../services/store';
 import { Market } from '../types/market';
 import { MarketCard } from '../components/MarketCard';
-import { ArrowRight, CheckCircle, Database, Search, ShieldCheck, TrendingUp, Users } from 'lucide-react';
+import { ArrowRight, Flame, Sparkles, TrendingUp, Radio, Trophy, Music, Tv } from 'lucide-react';
 
 interface HomeProps {
   onNavigate: (path: string) => void;
@@ -18,131 +18,112 @@ export const Home: React.FC<HomeProps> = ({ onNavigate }) => {
     return unsub;
   }, []);
 
-  const featuredMarkets = markets.filter((m) => m.featured).slice(0, 3);
-  const creatorsMarkets = markets.filter((m) => m.category === 'internet_creators').slice(0, 4);
-  const sportsMarkets = markets.filter((m) => m.category === 'esportes').slice(0, 4);
-  const musicMarkets = markets.filter((m) => m.category === 'musica').slice(0, 4);
-  const entertainmentMarkets = markets.filter((m) => m.category === 'entretenimento').slice(0, 4);
+  const featuredMarket = markets.find((m) => m.featured) || markets[0];
+  const emAltaMarkets = markets.slice(0, 3);
+  const acontecendoAgora = markets.filter((m) => m.status === 'OPEN').slice(0, 3);
+  const creatorsMarkets = markets.filter((m) => m.category === 'internet_creators').slice(0, 3);
+  const sportsMarkets = markets.filter((m) => m.category === 'esportes').slice(0, 3);
+  const musicMarkets = markets.filter((m) => m.category === 'musica').slice(0, 3);
+  const entertainmentMarkets = markets.filter((m) => m.category === 'entretenimento').slice(0, 3);
 
   return (
-    <div className="space-y-16">
+    <div className="space-y-12 sm:space-y-16 pb-20">
       
-      {/* 1. Hero Section */}
-      <section className="relative overflow-hidden pt-8 pb-12 sm:pt-14 sm:pb-16 bg-white border-b border-neutral-200">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6">
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 items-center">
+      {/* 1. Hero Principal: O QUE VAI ACONTECER? */}
+      <section className="bg-white border-b border-[#E5E7E9] pt-8 pb-12 sm:pt-12 sm:pb-16">
+        <div className="max-w-5xl mx-auto px-4 sm:px-6">
+          <div className="space-y-6">
             
-            <div className="lg:col-span-7 space-y-6">
-              
-              {/* Quiet unboxed kicker */}
-              <div className="flex items-center gap-2 text-xs font-semibold text-neutral-600">
-                <span>Mercados de Previsão Cultural e Digital</span>
-                <span aria-hidden="true" className="text-neutral-300">·</span>
-                <span className="text-emerald-700 font-medium">Dados Verificáveis</span>
-                <span aria-hidden="true" className="text-neutral-300">·</span>
-                <span>Créditos Virtuais</span>
-              </div>
-
-              {/* Dominant Headline */}
-              <h1 className="font-display font-bold text-4xl sm:text-5xl lg:text-6xl text-neutral-900 tracking-tight leading-[1.08] text-balance">
-                O que você acha que vai acontecer?
-              </h1>
-
-              <p className="text-base sm:text-lg text-neutral-600 leading-relaxed max-w-xl text-balance">
-                Antecipe o resultado de disputas de creators, paradas de música, eventos esportivos e tendências da internet brasileira com resolução baseada em métricas auditáveis.
-              </p>
-
-              {/* CTAs */}
-              <div className="flex flex-wrap items-center gap-3 pt-2">
-                <button
-                  onClick={() => onNavigate('/mercados')}
-                  className="px-6 py-3 bg-neutral-900 hover:bg-neutral-800 text-white rounded-xl text-sm font-semibold transition-colors flex items-center gap-2"
-                >
-                  <span>Explorar Mercados</span>
-                  <ArrowRight className="w-4 h-4" />
-                </button>
-                <button
-                  onClick={() => onNavigate('/criar')}
-                  className="px-6 py-3 bg-neutral-100 hover:bg-neutral-200 text-neutral-900 rounded-xl text-sm font-semibold transition-colors"
-                >
-                  Criar Novo Mercado
-                </button>
-              </div>
-
-              {/* Micro proof points */}
-              <div className="pt-4 flex flex-wrap items-center gap-6 text-xs text-neutral-500 border-t border-neutral-100">
-                <div className="flex items-center gap-1.5">
-                  <ShieldCheck className="w-4 h-4 text-emerald-600" />
-                  <span>Resolução via APIs e Súmulas</span>
-                </div>
-                <div className="flex items-center gap-1.5">
-                  <CheckCircle className="w-4 h-4 text-neutral-700" />
-                  <span>Divisão Transparente 70 / 20 / 10</span>
-                </div>
-                <div className="flex items-center gap-1.5">
-                  <span>10.000 Créditos Iniciais para Testar</span>
-                </div>
-              </div>
-
+            {/* Tag amigável */}
+            <div className="inline-flex items-center gap-2 bg-[#F7F8F7] text-[#007A38] px-3.5 py-1.5 rounded-full text-sm font-bold border border-[#E5E7E9]">
+              <Sparkles className="w-4 h-4 text-[#009344]" />
+              <span>Acontecendo agora na internet</span>
             </div>
 
-            {/* Hero Visual Asset */}
-            <div className="lg:col-span-5">
-              <div className="relative rounded-2xl overflow-hidden border border-neutral-200 shadow-md aspect-[16/10] bg-neutral-100">
-                <img
-                  src="/src/assets/images/hero_brazil_creators_1790456745699.jpg"
-                  alt="Estúdio de criação de conteúdo digital e cultura pop"
-                  referrerPolicy="no-referrer"
-                  className="w-full h-full object-cover"
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/25 to-transparent flex flex-col justify-end p-6 text-white">
-                  <span className="text-xs uppercase tracking-wider text-neutral-300 font-semibold mb-1">
-                    Em Destaque Agora
-                  </span>
-                  <h3 className="font-semibold text-lg text-white leading-snug">
-                    {featuredMarkets[0]?.title || 'Disputas populares da internet e creators'}
-                  </h3>
-                  <div className="mt-3 flex items-center justify-between text-xs text-neutral-200">
-                    <span>Pool: {featuredMarkets[0]?.total_pool.toLocaleString('pt-BR')} Créditos</span>
-                    <button
-                      onClick={() => onNavigate(`/mercados/${featuredMarkets[0]?.slug}`)}
-                      className="px-3 py-1 bg-white text-neutral-900 font-semibold rounded-lg text-xs hover:bg-neutral-100 transition-colors"
+            {/* Pergunta Gigante */}
+            <h1 className="font-extrabold text-[34px] sm:text-[46px] lg:text-[54px] text-[#202124] tracking-tight leading-[1.08]">
+              O que você acha que vai acontecer?
+            </h1>
+
+            <p className="text-[18px] sm:text-[20px] text-[#5F6368] font-normal leading-relaxed max-w-2xl">
+              Escolha quem ganha, acompanhe ao vivo e veja o resultado de verdade. Simples e rápido.
+            </p>
+
+            {/* Destaque Principal (Card Gigante) */}
+            {featuredMarket && (
+              <div
+                onClick={() => onNavigate(`/mercados/${featuredMarket.slug}`)}
+                className="mt-6 cursor-pointer bg-[#F7F8F7] hover:bg-white border-2 border-[#E5E7E9] hover:border-[#009344] rounded-3xl p-6 sm:p-8 transition-all shadow-sm hover:shadow-md"
+              >
+                <div className="flex items-center gap-2 text-sm font-bold text-[#007A38] uppercase tracking-wider mb-2">
+                  <Flame className="w-5 h-5 text-amber-500 fill-amber-500" />
+                  <span>Palpite mais falado de hoje</span>
+                </div>
+
+                <h2 className="font-extrabold text-[24px] sm:text-[30px] text-[#202124] leading-snug mb-5">
+                  {featuredMarket.title}
+                </h2>
+
+                {/* Grid das Escolhas */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-6">
+                  {featuredMarket.options.slice(0, 2).map((opt) => (
+                    <div
+                      key={opt.id}
+                      className="bg-white p-4 rounded-2xl border border-[#E5E7E9] flex items-center justify-between"
                     >
-                      Dar Previsão
-                    </button>
-                  </div>
+                      <span className="font-bold text-[#202124] text-[17px]">
+                        {opt.label}
+                      </span>
+                      <span className="font-extrabold text-[16px] text-[#009344]">
+                        {opt.current_probability}% de chance
+                      </span>
+                    </div>
+                  ))}
                 </div>
+
+                {/* Botão Gigante de Ação */}
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onNavigate(`/mercados/${featuredMarket.slug}`);
+                  }}
+                  className="w-full sm:w-auto h-[56px] px-8 bg-[#009344] hover:bg-[#007A38] text-white font-extrabold text-[18px] rounded-2xl flex items-center justify-center gap-2 shadow-sm transition-all"
+                >
+                  <span>Dar meu palpite agora</span>
+                  <ArrowRight className="w-5 h-5" />
+                </button>
               </div>
-            </div>
+            )}
 
           </div>
         </div>
       </section>
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 space-y-16">
-
-        {/* 2. Em Alta Agora */}
+      {/* Conteúdo com Seções Simples */}
+      <div className="max-w-5xl mx-auto px-4 sm:px-6 space-y-14">
+        
+        {/* 2. Em Alta */}
         <section>
-          <div className="flex items-end justify-between mb-6">
-            <div>
-              <div className="text-xs font-semibold text-neutral-500 uppercase tracking-wider mb-1">
-                Tendências
+          <div className="flex items-center justify-between mb-6">
+            <div className="flex items-center gap-2.5">
+              <div className="w-8 h-8 rounded-xl bg-amber-100 flex items-center justify-center text-amber-600">
+                <Flame className="w-5 h-5 fill-amber-500" />
               </div>
-              <h2 className="font-display font-bold text-2xl text-neutral-900 tracking-tight">
-                Em alta agora
+              <h2 className="font-extrabold text-[24px] sm:text-[28px] text-[#202124]">
+                Em alta
               </h2>
             </div>
             <button
               onClick={() => onNavigate('/mercados')}
-              className="text-xs font-semibold text-neutral-700 hover:text-neutral-900 flex items-center gap-1"
+              className="text-[16px] font-bold text-[#009344] hover:text-[#007A38] flex items-center gap-1"
             >
               <span>Ver todos</span>
-              <ArrowRight className="w-3.5 h-3.5" />
+              <ArrowRight className="w-4 h-4" />
             </button>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            {featuredMarkets.map((market) => (
+            {emAltaMarkets.map((market) => (
               <MarketCard
                 key={market.id}
                 market={market}
@@ -152,57 +133,58 @@ export const Home: React.FC<HomeProps> = ({ onNavigate }) => {
           </div>
         </section>
 
-        {/* 3. Destaque Conceitual: Enquete vs Mercado com Auditabilidade */}
-        <section className="bg-neutral-900 text-white rounded-2xl p-8 sm:p-10">
-          <div className="max-w-3xl space-y-4">
-            <span className="text-xs font-semibold uppercase tracking-wider text-amber-300">
-              Princípio de Arquitetura
-            </span>
-            <h2 className="font-display font-bold text-2xl sm:text-3xl tracking-tight text-white">
-              Por que somos um mercado e não uma enquete?
-            </h2>
-            <p className="text-neutral-300 text-sm leading-relaxed">
-              Uma enquete pergunta <em>"Em quem você vota?"</em> e mede apenas preferências imediatas. Nosso produto pergunta <em>"O que você acha que vai acontecer?"</em>, exigindo regra de resolução, prazo, evidência verificável na fonte e distribuição matemática aos participantes com maior precisão.
-            </p>
-
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 pt-4 border-t border-neutral-800 text-xs">
-              <div className="space-y-1">
-                <div className="font-semibold text-white">1. Dado Objetivo</div>
-                <div className="text-neutral-400">Todo mercado é vinculado a um identificador verificável (YouTube, Spotify, etc.).</div>
+        {/* 3. Acontecendo Agora */}
+        <section>
+          <div className="flex items-center justify-between mb-6">
+            <div className="flex items-center gap-2.5">
+              <div className="w-8 h-8 rounded-xl bg-emerald-100 flex items-center justify-center text-[#009344]">
+                <Radio className="w-5 h-5" />
               </div>
-              <div className="space-y-1">
-                <div className="font-semibold text-white">2. Posição & Venda</div>
-                <div className="text-neutral-400">Você pode manter até a resolução ou liquidar sua posição antecipadamente.</div>
-              </div>
-              <div className="space-y-1">
-                <div className="font-semibold text-white">3. Divisão do Pool</div>
-                <div className="text-neutral-400">70% para acertadores, 20% para o criador e 10% de custo operacional.</div>
-              </div>
+              <h2 className="font-extrabold text-[24px] sm:text-[28px] text-[#202124]">
+                Acontecendo agora
+              </h2>
             </div>
+            <button
+              onClick={() => onNavigate('/mercados')}
+              className="text-[16px] font-bold text-[#009344] hover:text-[#007A38] flex items-center gap-1"
+            >
+              <span>Ver mais</span>
+              <ArrowRight className="w-4 h-4" />
+            </button>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            {acontecendoAgora.map((market) => (
+              <MarketCard
+                key={market.id}
+                market={market}
+                onSelect={(slug) => onNavigate(`/mercados/${slug}`)}
+              />
+            ))}
           </div>
         </section>
 
         {/* 4. Internet & Creators */}
         <section>
-          <div className="flex items-end justify-between mb-6">
-            <div>
-              <div className="text-xs font-semibold text-neutral-500 uppercase tracking-wider mb-1">
-                Podcasts, Vídeos & Streamers
+          <div className="flex items-center justify-between mb-6">
+            <div className="flex items-center gap-2.5">
+              <div className="w-8 h-8 rounded-xl bg-red-100 flex items-center justify-center text-red-600">
+                <TrendingUp className="w-5 h-5" />
               </div>
-              <h2 className="font-display font-bold text-2xl text-neutral-900 tracking-tight">
-                Internet & Creators
+              <h2 className="font-extrabold text-[24px] sm:text-[28px] text-[#202124]">
+                Internet e Creators
               </h2>
             </div>
             <button
               onClick={() => onNavigate('/categorias/internet_creators')}
-              className="text-xs font-semibold text-neutral-700 hover:text-neutral-900 flex items-center gap-1"
+              className="text-[16px] font-bold text-[#009344] hover:text-[#007A38] flex items-center gap-1"
             >
-              <span>Ver categoria</span>
-              <ArrowRight className="w-3.5 h-3.5" />
+              <span>Ver mais</span>
+              <ArrowRight className="w-4 h-4" />
             </button>
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             {creatorsMarkets.map((market) => (
               <MarketCard
                 key={market.id}
@@ -213,27 +195,27 @@ export const Home: React.FC<HomeProps> = ({ onNavigate }) => {
           </div>
         </section>
 
-        {/* 5. Esportes e Disputas Digitais */}
+        {/* 5. Esportes e Lutas */}
         <section>
-          <div className="flex items-end justify-between mb-6">
-            <div>
-              <div className="text-xs font-semibold text-neutral-500 uppercase tracking-wider mb-1">
-                Ringue, Arenas & Streaming
+          <div className="flex items-center justify-between mb-6">
+            <div className="flex items-center gap-2.5">
+              <div className="w-8 h-8 rounded-xl bg-blue-100 flex items-center justify-center text-blue-600">
+                <Trophy className="w-5 h-5" />
               </div>
-              <h2 className="font-display font-bold text-2xl text-neutral-900 tracking-tight">
-                Esportes & Lutas
+              <h2 className="font-extrabold text-[24px] sm:text-[28px] text-[#202124]">
+                Esportes e Lutas
               </h2>
             </div>
             <button
               onClick={() => onNavigate('/categorias/esportes')}
-              className="text-xs font-semibold text-neutral-700 hover:text-neutral-900 flex items-center gap-1"
+              className="text-[16px] font-bold text-[#009344] hover:text-[#007A38] flex items-center gap-1"
             >
-              <span>Ver categoria</span>
-              <ArrowRight className="w-3.5 h-3.5" />
+              <span>Ver mais</span>
+              <ArrowRight className="w-4 h-4" />
             </button>
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             {sportsMarkets.map((market) => (
               <MarketCard
                 key={market.id}
@@ -244,27 +226,27 @@ export const Home: React.FC<HomeProps> = ({ onNavigate }) => {
           </div>
         </section>
 
-        {/* 6. Música e Charts */}
+        {/* 6. Música */}
         <section>
-          <div className="flex items-end justify-between mb-6">
-            <div>
-              <div className="text-xs font-semibold text-neutral-500 uppercase tracking-wider mb-1">
-                Spotify, Top Brasil & Festivais
+          <div className="flex items-center justify-between mb-6">
+            <div className="flex items-center gap-2.5">
+              <div className="w-8 h-8 rounded-xl bg-purple-100 flex items-center justify-center text-purple-600">
+                <Music className="w-5 h-5" />
               </div>
-              <h2 className="font-display font-bold text-2xl text-neutral-900 tracking-tight">
-                Música & Streaming
+              <h2 className="font-extrabold text-[24px] sm:text-[28px] text-[#202124]">
+                Música e Paradas
               </h2>
             </div>
             <button
               onClick={() => onNavigate('/categorias/musica')}
-              className="text-xs font-semibold text-neutral-700 hover:text-neutral-900 flex items-center gap-1"
+              className="text-[16px] font-bold text-[#009344] hover:text-[#007A38] flex items-center gap-1"
             >
-              <span>Ver categoria</span>
-              <ArrowRight className="w-3.5 h-3.5" />
+              <span>Ver mais</span>
+              <ArrowRight className="w-4 h-4" />
             </button>
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             {musicMarkets.map((market) => (
               <MarketCard
                 key={market.id}
@@ -275,27 +257,27 @@ export const Home: React.FC<HomeProps> = ({ onNavigate }) => {
           </div>
         </section>
 
-        {/* 7. Entretenimento & Cultura Pop */}
+        {/* 7. Entretenimento & TV */}
         <section>
-          <div className="flex items-end justify-between mb-6">
-            <div>
-              <div className="text-xs font-semibold text-neutral-500 uppercase tracking-wider mb-1">
-                Premiações, Séries & TV
+          <div className="flex items-center justify-between mb-6">
+            <div className="flex items-center gap-2.5">
+              <div className="w-8 h-8 rounded-xl bg-orange-100 flex items-center justify-center text-orange-600">
+                <Tv className="w-5 h-5" />
               </div>
-              <h2 className="font-display font-bold text-2xl text-neutral-900 tracking-tight">
-                Entretenimento & TV
+              <h2 className="font-extrabold text-[24px] sm:text-[28px] text-[#202124]">
+                Entretenimento
               </h2>
             </div>
             <button
               onClick={() => onNavigate('/categorias/entretenimento')}
-              className="text-xs font-semibold text-neutral-700 hover:text-neutral-900 flex items-center gap-1"
+              className="text-[16px] font-bold text-[#009344] hover:text-[#007A38] flex items-center gap-1"
             >
-              <span>Ver categoria</span>
-              <ArrowRight className="w-3.5 h-3.5" />
+              <span>Ver mais</span>
+              <ArrowRight className="w-4 h-4" />
             </button>
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             {entertainmentMarkets.map((market) => (
               <MarketCard
                 key={market.id}
@@ -304,24 +286,6 @@ export const Home: React.FC<HomeProps> = ({ onNavigate }) => {
               />
             ))}
           </div>
-        </section>
-
-        {/* 8. Call to action para Criadores */}
-        <section className="bg-neutral-100 rounded-2xl p-8 sm:p-10 border border-neutral-200 flex flex-col md:flex-row items-center justify-between gap-6">
-          <div className="space-y-2 max-w-xl">
-            <h3 className="font-display font-bold text-xl sm:text-2xl text-neutral-900">
-              Tem uma audiência ou quer criar seu próprio mercado?
-            </h3>
-            <p className="text-neutral-600 text-xs sm:text-sm leading-relaxed">
-              Defina a pergunta, vincule uma fonte pública verificável e compartilhe com sua comunidade. Criadores recebem 20% do pool de créditos virtuais gerado pelo mercado.
-            </p>
-          </div>
-          <button
-            onClick={() => onNavigate('/criar')}
-            className="px-6 py-3 bg-neutral-900 hover:bg-neutral-800 text-white rounded-xl text-xs font-semibold transition-colors shrink-0"
-          >
-            Começar Como Criador
-          </button>
         </section>
 
       </div>

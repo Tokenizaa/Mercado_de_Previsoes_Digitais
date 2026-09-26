@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { marketStore } from '../services/store';
 import { Category, MarketType, SourceProvider } from '../types/market';
-import { AlertCircle, CheckCircle2, HelpCircle, Plus, ShieldCheck, Trash2 } from 'lucide-react';
+import { AlertCircle, ArrowLeft, CheckCircle2, ShieldAlert, ShieldCheck, Trash2, Plus } from 'lucide-react';
 
 interface CreateMarketProps {
   onNavigate: (path: string) => void;
@@ -19,16 +19,8 @@ export const CreateMarket: React.FC<CreateMarketProps> = ({ onNavigate }) => {
   const [sourceUrl, setSourceUrl] = useState('');
   const [sourceIdentifier, setSourceIdentifier] = useState('');
   const [resolutionRule, setResolutionRule] = useState('');
-  const [creationPlan, setCreationPlan] = useState<'pequeno' | 'medio' | 'grande' | 'maior'>('medio');
   const [options, setOptions] = useState<string[]>(['Opção A', 'Opção B']);
   const [error, setError] = useState<string | null>(null);
-
-  const plans = [
-    { id: 'pequeno', name: 'Plano Pequeno', capacity: 100, desc: 'Ideal para círculos próximos e testes' },
-    { id: 'medio', name: 'Plano Médio', capacity: 500, desc: 'Recomendado para criadores e nichos' },
-    { id: 'grande', name: 'Plano Grande', capacity: 2500, desc: 'Para canais com comunidades ativas' },
-    { id: 'maior', name: 'Plano Maior', capacity: 10000, desc: 'Grandes eventos de repercussão nacional' },
-  ];
 
   const handleAddOption = () => {
     if (options.length < 6) {
@@ -58,7 +50,7 @@ export const CreateMarket: React.FC<CreateMarketProps> = ({ onNavigate }) => {
     }
 
     if (!closeAt) {
-      setError('Informe a data e hora de encerramento do mercado.');
+      setError('Informe a data e hora de encerramento do palpite.');
       return;
     }
 
@@ -78,281 +70,235 @@ export const CreateMarket: React.FC<CreateMarketProps> = ({ onNavigate }) => {
       source_url: sourceUrl,
       source_identifier: sourceIdentifier,
       options,
-      creation_plan: creationPlan,
+      creation_plan: 'medio',
     });
 
     if (res.success && res.market) {
       onNavigate(`/mercados/${res.market.slug}`);
     } else {
-      setError(res.message || 'Erro ao publicar mercado');
+      setError(res.message || 'Erro ao publicar palpite');
     }
   };
 
   return (
-    <div className="max-w-4xl mx-auto px-4 sm:px-6 py-8">
-      <div className="mb-8">
-        <h1 className="font-display font-bold text-3xl text-neutral-900 tracking-tight">
-          Criar Novo Mercado de Previsão
-        </h1>
-        <p className="text-sm text-neutral-600 mt-1">
-          Publique uma pergunta objetiva vinculada a dados auditáveis. Como criador, você receberá 20% do pool final de Créditos.
-        </p>
+    <div className="max-w-4xl mx-auto px-4 sm:px-6 py-8 pb-24 space-y-6">
+      
+      <button
+        onClick={() => onNavigate('/admin')}
+        className="inline-flex items-center gap-2 text-sm font-bold text-[#5F6368] hover:text-[#202124] transition-colors py-1"
+      >
+        <ArrowLeft className="w-4 h-4" />
+        <span>Voltar para Área Admin</span>
+      </button>
+
+      {/* Banner de Aviso Administrativo Conforme D-005 */}
+      <div className="p-4 bg-amber-50 border border-amber-200 rounded-2xl flex items-center gap-3 text-amber-900 text-sm font-medium">
+        <ShieldAlert className="w-5 h-5 text-amber-700 shrink-0" />
+        <div>
+          <strong>Área Administrativa:</strong> Apenas administradores cadastram novos palpites nesta versão (D-005). Todo palpite exige pergunta objetiva, prazo e fonte pública auditável.
+        </div>
       </div>
 
-      <form onSubmit={handleSubmit} className="space-y-8 bg-white p-6 sm:p-8 rounded-2xl border border-neutral-200">
-        
-        {/* Erro Geral */}
+      <div className="bg-white p-6 sm:p-8 rounded-3xl border border-[#E5E7E9] shadow-xs space-y-6">
+        <div>
+          <h1 className="font-extrabold text-2xl sm:text-3xl text-[#202124] tracking-tight">
+            Cadastrar Novo Palpite
+          </h1>
+          <p className="text-sm text-[#5F6368] mt-1">
+            Defina uma pergunta clara e aponte onde o resultado será apurado automaticamente.
+          </p>
+        </div>
+
         {error && (
-          <div className="p-4 bg-rose-50 border border-rose-200 rounded-xl text-rose-800 text-xs flex items-center gap-2">
-            <AlertCircle className="w-4 h-4 shrink-0" />
+          <div className="p-4 bg-rose-50 border border-rose-200 rounded-2xl text-rose-900 text-sm font-semibold flex items-center gap-2">
+            <AlertCircle className="w-5 h-5 shrink-0" />
             <span>{error}</span>
           </div>
         )}
 
-        {/* 1. Pergunta e Descrição */}
-        <div className="space-y-4">
-          <div className="text-xs font-semibold text-neutral-800 uppercase tracking-wider pb-1 border-b border-neutral-100">
-            01. Pergunta Principal & Categoria
-          </div>
-
-          <div>
-            <label className="block text-xs font-semibold text-neutral-700 mb-1.5">
-              Pergunta do Mercado *
+        <form onSubmit={handleSubmit} className="space-y-6">
+          
+          {/* Pergunta */}
+          <div className="space-y-1.5">
+            <label className="block text-sm font-bold text-[#202124]">
+              Pergunta Principal (Ex: "Quem vence o combate no FMS 5?") *
             </label>
             <input
               type="text"
-              placeholder="Ex: Qual música ocupará a 1ª posição no Spotify Top 50 Brasil nesta sexta?"
               value={title}
               onChange={(e) => setTitle(e.target.value)}
-              className="w-full px-3.5 py-2.5 bg-neutral-50 border border-neutral-200 rounded-xl text-xs sm:text-sm text-neutral-900 focus:outline-none focus:border-neutral-900"
+              placeholder="Digite a pergunta de forma direta..."
+              className="w-full h-12 px-4 bg-[#F7F8F7] border border-[#E5E7E9] rounded-xl text-sm font-medium text-[#202124] outline-none focus:border-[#009344]"
             />
-            <span className="text-[11px] text-neutral-400 mt-1 block">
-              Formule uma questão clara sobre o que vai acontecer, e não sobre opiniões pessoais.
-            </span>
           </div>
 
+          {/* Descrição */}
+          <div className="space-y-1.5">
+            <label className="block text-sm font-bold text-[#202124]">
+              Contexto / Descrição curta
+            </label>
+            <textarea
+              rows={2}
+              value={description}
+              onChange={(e) => setDescription(e.target.value)}
+              placeholder="Explique o contexto do acontecimento..."
+              className="w-full p-4 bg-[#F7F8F7] border border-[#E5E7E9] rounded-xl text-sm font-medium text-[#202124] outline-none focus:border-[#009344]"
+            />
+          </div>
+
+          {/* Categoria e Prazo */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <div>
-              <label className="block text-xs font-semibold text-neutral-700 mb-1.5">
-                Categoria
+            <div className="space-y-1.5">
+              <label className="block text-sm font-bold text-[#202124]">
+                Assunto / Categoria *
               </label>
               <select
                 value={category}
                 onChange={(e) => setCategory(e.target.value as Category)}
-                className="w-full px-3.5 py-2.5 bg-neutral-50 border border-neutral-200 rounded-xl text-xs text-neutral-900 focus:outline-none focus:border-neutral-900"
+                className="w-full h-12 px-4 bg-[#F7F8F7] border border-[#E5E7E9] rounded-xl text-sm font-bold text-[#202124] outline-none"
               >
-                <option value="internet_creators">Internet & Creators</option>
-                <option value="esportes">Esportes & Lutas</option>
-                <option value="musica">Música & Streaming</option>
-                <option value="entretenimento">Entretenimento & TV</option>
+                <option value="internet_creators">Internet e Creators</option>
+                <option value="esportes">Esportes e Lutas</option>
+                <option value="musica">Música e Streaming</option>
+                <option value="entretenimento">Entretenimento e TV</option>
               </select>
             </div>
 
-            <div>
-              <label className="block text-xs font-semibold text-neutral-700 mb-1.5">
-                Tipo de Mercado
-              </label>
-              <select
-                value={marketType}
-                onChange={(e) => {
-                  const t = e.target.value as MarketType;
-                  setMarketType(t);
-                  if (t === 'LIMIAR') {
-                    setOptions(['Sim', 'Não']);
-                  }
-                }}
-                className="w-full px-3.5 py-2.5 bg-neutral-50 border border-neutral-200 rounded-xl text-xs text-neutral-900 focus:outline-none focus:border-neutral-900"
-              >
-                <option value="RESULTADO">RESULTADO (Quem vence entre opções)</option>
-                <option value="LIMIAR">LIMIAR (Ultrapassará marca Sim/Não)</option>
-                <option value="METRICA">METRICA (Faixas quantitativas)</option>
-                <option value="RANKING">RANKING (Posição relativa em parada)</option>
-              </select>
-            </div>
-          </div>
-
-          <div>
-            <label className="block text-xs font-semibold text-neutral-700 mb-1.5">
-              Descrição e Contexto do Evento
-            </label>
-            <textarea
-              rows={3}
-              placeholder="Explique o contexto, quem são os envolvidos e o que torna este evento relevante..."
-              value={description}
-              onChange={(e) => setDescription(e.target.value)}
-              className="w-full px-3.5 py-2.5 bg-neutral-50 border border-neutral-200 rounded-xl text-xs text-neutral-900 focus:outline-none focus:border-neutral-900"
-            />
-          </div>
-
-          <div>
-            <label className="block text-xs font-semibold text-neutral-700 mb-1.5">
-              Data e Hora Limite de Encerramento *
-            </label>
-            <input
-              type="datetime-local"
-              value={closeAt}
-              onChange={(e) => setCloseAt(e.target.value)}
-              className="w-full sm:w-72 px-3.5 py-2.5 bg-neutral-50 border border-neutral-200 rounded-xl text-xs text-neutral-900 focus:outline-none focus:border-neutral-900"
-            />
-          </div>
-        </div>
-
-        {/* 2. Opções de Resposta */}
-        <div className="space-y-4">
-          <div className="flex items-center justify-between pb-1 border-b border-neutral-100">
-            <span className="text-xs font-semibold text-neutral-800 uppercase tracking-wider">
-              02. Opções Disponíveis
-            </span>
-            {marketType !== 'LIMIAR' && options.length < 6 && (
-              <button
-                type="button"
-                onClick={handleAddOption}
-                className="text-xs font-semibold text-neutral-900 hover:text-neutral-700 flex items-center gap-1"
-              >
-                <Plus className="w-3.5 h-3.5" />
-                <span>Adicionar Opção</span>
-              </button>
-            )}
-          </div>
-
-          <div className="space-y-2.5">
-            {options.map((opt, idx) => (
-              <div key={idx} className="flex items-center gap-2">
-                <input
-                  type="text"
-                  value={opt}
-                  onChange={(e) => handleOptionChange(idx, e.target.value)}
-                  className="flex-1 px-3.5 py-2 bg-neutral-50 border border-neutral-200 rounded-xl text-xs text-neutral-900 focus:outline-none focus:border-neutral-900"
-                />
-                {marketType !== 'LIMIAR' && options.length > 2 && (
-                  <button
-                    type="button"
-                    onClick={() => handleRemoveOption(idx)}
-                    className="p-2 text-neutral-400 hover:text-rose-600 rounded-lg transition-colors"
-                  >
-                    <Trash2 className="w-4 h-4" />
-                  </button>
-                )}
-              </div>
-            ))}
-          </div>
-        </div>
-
-        {/* 3. Fonte e Regra de Resolução (AUDITABILIDADE) */}
-        <div className="space-y-4">
-          <div className="flex items-center gap-2 pb-1 border-b border-neutral-100">
-            <ShieldCheck className="w-4 h-4 text-emerald-600" />
-            <span className="text-xs font-semibold text-neutral-800 uppercase tracking-wider">
-              03. Auditabilidade & Fonte Verificável (Obrigatório)
-            </span>
-          </div>
-
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <div>
-              <label className="block text-xs font-semibold text-neutral-700 mb-1.5">
-                Provedor da Fonte
-              </label>
-              <select
-                value={sourceType}
-                onChange={(e) => setSourceType(e.target.value)}
-                className="w-full px-3.5 py-2.5 bg-neutral-50 border border-neutral-200 rounded-xl text-xs text-neutral-900 focus:outline-none focus:border-neutral-900"
-              >
-                {sources.map((src) => (
-                  <option key={src.slug} value={src.slug}>
-                    {src.name} ({src.automated_resolution_supported ? 'Automatizável' : 'Auditável'})
-                  </option>
-                ))}
-              </select>
-            </div>
-
-            <div>
-              <label className="block text-xs font-semibold text-neutral-700 mb-1.5">
-                Identificador da Métrica *
+            <div className="space-y-1.5">
+              <label className="block text-sm font-bold text-[#202124]">
+                Data e Hora de Fechamento *
               </label>
               <input
-                type="text"
-                placeholder="Ex: Video ID, Track ID, Tag ou Súmula"
-                value={sourceIdentifier}
-                onChange={(e) => setSourceIdentifier(e.target.value)}
-                className="w-full px-3.5 py-2.5 bg-neutral-50 border border-neutral-200 rounded-xl text-xs text-neutral-900 focus:outline-none focus:border-neutral-900"
+                type="datetime-local"
+                value={closeAt}
+                onChange={(e) => setCloseAt(e.target.value)}
+                className="w-full h-12 px-4 bg-[#F7F8F7] border border-[#E5E7E9] rounded-xl text-sm font-medium text-[#202124] outline-none"
+              >
+              </input>
+            </div>
+          </div>
+
+          {/* Opções de Escolha */}
+          <div className="space-y-3">
+            <div className="flex items-center justify-between">
+              <label className="text-sm font-bold text-[#202124]">
+                Escolhas possíveis para o usuário *
+              </label>
+              {options.length < 6 && (
+                <button
+                  type="button"
+                  onClick={handleAddOption}
+                  className="text-xs font-bold text-[#009344] hover:text-[#007A38] flex items-center gap-1"
+                >
+                  <Plus className="w-4 h-4" />
+                  <span>Adicionar opção</span>
+                </button>
+              )}
+            </div>
+
+            <div className="space-y-2">
+              {options.map((opt, idx) => (
+                <div key={idx} className="flex items-center gap-2">
+                  <span className="w-8 h-8 rounded-lg bg-[#F7F8F7] border border-[#E5E7E9] flex items-center justify-center text-xs font-bold text-[#5F6368]">
+                    {String.fromCharCode(65 + idx)}
+                  </span>
+                  <input
+                    type="text"
+                    value={opt}
+                    onChange={(e) => handleOptionChange(idx, e.target.value)}
+                    className="flex-1 h-11 px-3.5 bg-[#F7F8F7] border border-[#E5E7E9] rounded-xl text-sm font-medium text-[#202124] outline-none focus:border-[#009344]"
+                  />
+                  {options.length > 2 && (
+                    <button
+                      type="button"
+                      onClick={() => handleRemoveOption(idx)}
+                      className="p-2 text-[#5F6368] hover:text-rose-600 transition-colors"
+                    >
+                      <Trash2 className="w-4 h-4" />
+                    </button>
+                  )}
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Auditabilidade Obrigatória */}
+          <div className="p-5 rounded-2xl bg-[#F7F8F7] border border-[#E5E7E9] space-y-4">
+            <div className="flex items-center gap-2 text-sm font-bold text-[#202124]">
+              <ShieldCheck className="w-5 h-5 text-[#009344]" />
+              <span>Fonte Oficial Auditável (D-004)</span>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div className="space-y-1.5">
+                <label className="block text-xs font-bold text-[#5F6368]">
+                  Provedor da Fonte *
+                </label>
+                <select
+                  value={sourceType}
+                  onChange={(e) => setSourceType(e.target.value)}
+                  className="w-full h-11 px-3 bg-white border border-[#E5E7E9] rounded-xl text-xs font-medium text-[#202124] outline-none"
+                >
+                  {sources.map((s) => (
+                    <option key={s.id} value={s.slug}>
+                      {s.name} ({s.source_type})
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              <div className="space-y-1.5">
+                <label className="block text-xs font-bold text-[#5F6368]">
+                  Identificador / ID da Métrica *
+                </label>
+                <input
+                  type="text"
+                  placeholder="Ex: video_id, spotify_track_id..."
+                  value={sourceIdentifier}
+                  onChange={(e) => setSourceIdentifier(e.target.value)}
+                  className="w-full h-11 px-3 bg-white border border-[#E5E7E9] rounded-xl text-xs font-medium text-[#202124] outline-none"
+                />
+              </div>
+            </div>
+
+            <div className="space-y-1.5">
+              <label className="block text-xs font-bold text-[#5F6368]">
+                URL Oficial da Fonte *
+              </label>
+              <input
+                type="url"
+                placeholder="https://..."
+                value={sourceUrl}
+                onChange={(e) => setSourceUrl(e.target.value)}
+                className="w-full h-11 px-3 bg-white border border-[#E5E7E9] rounded-xl text-xs font-medium text-[#202124] outline-none"
+              />
+            </div>
+
+            <div className="space-y-1.5">
+              <label className="block text-xs font-bold text-[#5F6368]">
+                Regra Objetiva de Apuração *
+              </label>
+              <textarea
+                rows={2}
+                placeholder="Descreva exatamente o critério numérico ou oficial de desfecho..."
+                value={resolutionRule}
+                onChange={(e) => setResolutionRule(e.target.value)}
+                className="w-full p-3 bg-white border border-[#E5E7E9] rounded-xl text-xs font-medium text-[#202124] outline-none"
               />
             </div>
           </div>
 
-          <div>
-            <label className="block text-xs font-semibold text-neutral-700 mb-1.5">
-              URL Pública de Aferição *
-            </label>
-            <input
-              type="url"
-              placeholder="https://charts.spotify.com ou https://youtube.com/watch?v=..."
-              value={sourceUrl}
-              onChange={(e) => setSourceUrl(e.target.value)}
-              className="w-full px-3.5 py-2.5 bg-neutral-50 border border-neutral-200 rounded-xl text-xs text-neutral-900 focus:outline-none focus:border-neutral-900"
-            />
-          </div>
-
-          <div>
-            <label className="block text-xs font-semibold text-neutral-700 mb-1.5">
-              Regra de Resolução Objetiva *
-            </label>
-            <textarea
-              rows={2}
-              placeholder="Descreva exatamente como e quando o valor será conferido. Ex: O resultado será lido na parada do Spotify atualizada às 18h de sexta-feira. A faixa na posição #1 será declarada vencedora."
-              value={resolutionRule}
-              onChange={(e) => setResolutionRule(e.target.value)}
-              className="w-full px-3.5 py-2.5 bg-neutral-50 border border-neutral-200 rounded-xl text-xs text-neutral-900 focus:outline-none focus:border-neutral-900"
-            />
-          </div>
-        </div>
-
-        {/* 4. Plano de Criação & Capacidade de Contratos */}
-        <div className="space-y-4">
-          <div className="pb-1 border-b border-neutral-100">
-            <span className="text-xs font-semibold text-neutral-800 uppercase tracking-wider">
-              04. Capacidade de Contratos Disponíveis
-            </span>
-          </div>
-
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
-            {plans.map((p) => {
-              const isSelected = creationPlan === p.id;
-              return (
-                <div
-                  key={p.id}
-                  onClick={() => setCreationPlan(p.id as any)}
-                  className={`p-4 rounded-xl border cursor-pointer transition-all ${
-                    isSelected
-                      ? 'border-neutral-900 bg-neutral-50 shadow-xs'
-                      : 'border-neutral-200 hover:border-neutral-300 bg-white'
-                  }`}
-                >
-                  <div className="font-semibold text-neutral-900 text-xs">{p.name}</div>
-                  <div className="text-base font-bold text-neutral-900 tabular-nums mt-1">
-                    {p.capacity.toLocaleString('pt-BR')}
-                  </div>
-                  <div className="text-[11px] text-neutral-500 mt-0.5">Contratos disponíveis</div>
-                  <div className="text-[10px] text-neutral-400 mt-2">{p.desc}</div>
-                </div>
-              );
-            })}
-          </div>
-        </div>
-
-        {/* Botão de Envio */}
-        <div className="pt-4 border-t border-neutral-100 flex items-center justify-between">
-          <div className="text-xs text-neutral-500">
-            Como criador, você recebe 20% do pool total distribuído.
-          </div>
+          {/* Botão de Envio */}
           <button
             type="submit"
-            className="px-6 py-3 bg-neutral-900 hover:bg-neutral-800 text-white rounded-xl text-xs font-semibold transition-colors"
+            className="w-full h-14 bg-[#009344] hover:bg-[#007A38] text-white rounded-2xl font-extrabold text-base transition-colors shadow-sm"
           >
-            Publicar Mercado Auditável
+            Publicar Palpite Administrativo
           </button>
-        </div>
 
-      </form>
+        </form>
+      </div>
+
     </div>
   );
 };

@@ -6,91 +6,80 @@ interface FooterProps {
 
 export const Footer: React.FC<FooterProps> = ({ onNavigate }) => {
   return (
-    <footer className="border-t border-neutral-200 bg-white mt-20">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 py-12">
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-8 mb-10">
+    <footer className="border-t border-[#E5E7E9] bg-white mt-20">
+      <div className="max-w-5xl mx-auto px-4 sm:px-6 py-12">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-10">
           
-          <div className="md:col-span-2">
-            <div className="font-display font-bold text-lg text-neutral-900 tracking-tight mb-2">
-              Mercado de Previsões Digitais
-            </div>
-            <p className="text-sm text-neutral-600 max-w-md leading-relaxed mb-4">
-              Plataforma de inteligência coletiva para antecipar desfechos de acontecimentos da internet, creators, entretenimento e cultura pop através de dados objetivos e fontes auditáveis.
-            </p>
-            <div className="text-xs text-neutral-500 leading-relaxed bg-neutral-50 p-3 rounded-lg border border-neutral-100 max-w-md">
-              <strong className="text-neutral-700">Modelo Econômico Transparente:</strong>
-              <div className="mt-1">
-                70% para acertadores · 20% para o criador do mercado · 10% custo operacional da plataforma.
+          <div className="md:col-span-1">
+            <div className="flex items-center gap-2 mb-3">
+              <div className="w-8 h-8 rounded-xl bg-[#009344] flex items-center justify-center text-white font-extrabold text-lg">
+                P
               </div>
+              <span className="font-extrabold text-xl text-[#202124]">
+                Palpites da internet
+              </span>
             </div>
+            <p className="text-sm text-[#5F6368] leading-relaxed mb-4">
+              O que você acha que vai acontecer? Escolha quem ganha nos assuntos mais comentados e acompanhe o resultado de verdade.
+            </p>
           </div>
 
           <div>
-            <div className="text-xs font-semibold text-neutral-900 uppercase tracking-wider mb-3">
+            <div className="text-xs font-bold text-[#202124] uppercase tracking-wider mb-3">
               Navegação
             </div>
-            <ul className="space-y-2 text-sm text-neutral-600">
+            <ul className="space-y-2.5 text-sm text-[#5F6368] font-semibold">
               <li>
-                <button onClick={() => onNavigate('/mercados')} className="hover:text-neutral-900 transition-colors">
-                  Todos os Mercados
+                <button onClick={() => onNavigate('/')} className="hover:text-[#202124] transition-colors">
+                  Início
                 </button>
               </li>
               <li>
-                <button onClick={() => onNavigate('/criar')} className="hover:text-neutral-900 transition-colors">
-                  Criar um Mercado
+                <button onClick={() => onNavigate('/mercados')} className="hover:text-[#202124] transition-colors">
+                  Explorar Palpites
                 </button>
               </li>
               <li>
-                <button onClick={() => onNavigate('/portfolio')} className="hover:text-neutral-900 transition-colors">
-                  Minhas Posições
+                <button onClick={() => onNavigate('/portfolio')} className="hover:text-[#202124] transition-colors">
+                  Meus palpites
                 </button>
               </li>
               <li>
-                <button onClick={() => onNavigate('/ranking')} className="hover:text-neutral-900 transition-colors">
-                  Ranking de Previsores
+                <button onClick={() => onNavigate('/ranking')} className="hover:text-[#202124] transition-colors">
+                  Quem mais acerta
                 </button>
               </li>
               <li>
-                <button onClick={() => onNavigate('/admin')} className="hover:text-neutral-900 transition-colors">
-                  Console DEMO & Auditoria
+                <button onClick={() => onNavigate('/admin')} className="hover:text-[#202124] transition-colors">
+                  Área Admin
                 </button>
               </li>
             </ul>
           </div>
 
           <div>
-            <div className="text-xs font-semibold text-neutral-900 uppercase tracking-wider mb-3">
-              Documentação do Projeto
+            <div className="text-xs font-bold text-[#202124] uppercase tracking-wider mb-3">
+              Assuntos
             </div>
-            <ul className="space-y-2 text-sm text-neutral-600">
+            <ul className="space-y-2.5 text-sm text-[#5F6368] font-semibold">
               <li>
-                <button onClick={() => onNavigate('/docs?doc=PRODUCT.md')} className="hover:text-neutral-900 transition-colors">
-                  Visão do Produto
+                <button onClick={() => onNavigate('/categorias/internet_creators')} className="hover:text-[#202124] transition-colors">
+                  Internet e Creators
                 </button>
               </li>
               <li>
-                <button onClick={() => onNavigate('/docs?doc=MARKET-MODEL.md')} className="hover:text-neutral-900 transition-colors">
-                  Tipos de Mercados
+                <button onClick={() => onNavigate('/categorias/esportes')} className="hover:text-[#202124] transition-colors">
+                  Esportes e Lutas
                 </button>
               </li>
               <li>
-                <button onClick={() => onNavigate('/docs?doc=DATA-SOURCES.md')} className="hover:text-neutral-900 transition-colors">
-                  Fontes & Auditabilidade
+                <button onClick={() => onNavigate('/categorias/musica')} className="hover:text-[#202124] transition-colors">
+                  Música e Streaming
                 </button>
               </li>
               <li>
-                <button onClick={() => onNavigate('/docs?doc=RESOLUTION.md')} className="hover:text-neutral-900 transition-colors">
-                  Regras de Resolução
-                </button>
-              </li>
-              <li>
-                <button onClick={() => onNavigate('/docs?doc=ECONOMICS.md')} className="hover:text-neutral-900 transition-colors">
-                  Créditos e Distribuição
-                </button>
-              </li>
-              <li>
-                <button onClick={() => onNavigate('/docs?doc=ROADMAP.md')} className="hover:text-neutral-900 transition-colors">
-                  Roadmap Técnico
+                <button onClick={() => onNavigate('/categorias/entretenimento')} className="hover:text-[#202124] transition-colors">
+                  Entretenimento e TV
                 </button>
               </li>
             </ul>
@@ -98,12 +87,12 @@ export const Footer: React.FC<FooterProps> = ({ onNavigate }) => {
 
         </div>
 
-        <div className="pt-8 border-t border-neutral-100 flex flex-col sm:flex-row items-center justify-between text-xs text-neutral-500 gap-4">
+        <div className="pt-8 border-t border-[#E5E7E9] flex flex-col sm:flex-row items-center justify-between text-xs text-[#5F6368] gap-4">
           <div>
-            100% Créditos virtuais de demonstração. Não há dinheiro real, depósito ou saque.
+            100% Créditos virtuais de teste. Sem dinheiro real, PIX, aposta ou saque.
           </div>
           <div>
-            Popularidade é importante. Mas auditabilidade é obrigatória.
+            Uma pergunta. Uma escolha. Um botão.
           </div>
         </div>
       </div>

@@ -1,7 +1,6 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Market, MarketResolutionLog } from '../types/market';
-import { calculateEconomics } from '../../worker/src/engine';
-import { CheckCircle2, ExternalLink, ShieldCheck, X } from 'lucide-react';
+import { CheckCircle2, ExternalLink, ShieldCheck, X, ChevronDown, ChevronUp } from 'lucide-react';
 
 interface ResolutionEvidenceModalProps {
   market: Market;
@@ -15,153 +14,121 @@ export const ResolutionEvidenceModal: React.FC<ResolutionEvidenceModalProps> = (
   onClose,
 }) => {
   const winnerOption = market.options.find((o) => o.result === 'WINNER');
-  const economics = calculateEconomics(market.total_pool);
+  const [showTechnicalDetails, setShowTechnicalDetails] = useState(false);
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs">
-      <div className="bg-white rounded-2xl max-w-2xl w-full p-6 max-h-[90vh] overflow-y-auto border border-neutral-200 shadow-xl">
+      <div className="bg-white rounded-3xl max-w-xl w-full p-6 sm:p-8 max-h-[90vh] overflow-y-auto border border-[#E5E7E9] shadow-2xl space-y-6">
         
-        {/* Header */}
-        <div className="flex items-start justify-between pb-4 border-b border-neutral-200">
-          <div className="flex items-center gap-2">
-            <div className="w-8 h-8 rounded-lg bg-emerald-50 text-emerald-700 flex items-center justify-center">
-              <ShieldCheck className="w-5 h-5" />
+        {/* Cabeçalho */}
+        <div className="flex items-start justify-between pb-4 border-b border-[#E5E7E9]">
+          <div className="flex items-center gap-2.5">
+            <div className="w-10 h-10 rounded-2xl bg-[#009344]/10 text-[#009344] flex items-center justify-center shrink-0">
+              <ShieldCheck className="w-6 h-6" />
             </div>
             <div>
-              <h3 className="font-semibold text-neutral-900 text-base">
-                Evidência e Auditoria da Resolução
+              <h3 className="font-extrabold text-[#202124] text-xl">
+                Como conferimos o resultado
               </h3>
-              <p className="text-xs text-neutral-500">
-                Registro imutável coletado e processado pelo Cloudflare Worker
+              <p className="text-xs font-semibold text-[#5F6368]">
+                Apuração 100% verificada na fonte oficial
               </p>
             </div>
           </div>
           <button
             onClick={onClose}
-            className="p-1.5 rounded-lg text-neutral-400 hover:text-neutral-700 hover:bg-neutral-100 transition-colors"
+            className="p-2 rounded-xl text-[#5F6368] hover:text-[#202124] hover:bg-[#F7F8F7] transition-colors"
           >
             <X className="w-5 h-5" />
           </button>
         </div>
 
-        {/* Content */}
-        <div className="py-4 space-y-5 text-sm">
-          
-          {/* Pergunta e Vencedor */}
-          <div className="bg-neutral-50 p-4 rounded-xl border border-neutral-200">
-            <div className="text-xs text-neutral-500 mb-1">Mercado Auditado:</div>
-            <div className="font-semibold text-neutral-900 text-sm mb-3">{market.title}</div>
-            
-            <div className="flex items-center gap-2 pt-2 border-t border-neutral-200">
-              <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
-              <div className="text-xs">
-                <span className="text-neutral-600">Resultado Oficial Verificado: </span>
-                <span className="font-bold text-neutral-900">
-                  {winnerOption ? winnerOption.label : 'Opção confirmada'}
-                </span>
-              </div>
-            </div>
+        {/* Pergunta e Vencedor */}
+        <div className="bg-[#F7F8F7] p-5 rounded-2xl border border-[#E5E7E9] space-y-3">
+          <div className="text-xs font-bold text-[#5F6368] uppercase tracking-wider">
+            Palpite apurado
+          </div>
+          <div className="font-extrabold text-[#202124] text-lg leading-snug">
+            {market.title}
           </div>
 
-          {/* Dados da Fonte */}
-          <div className="space-y-2">
-            <div className="text-xs font-semibold text-neutral-800 uppercase tracking-wider">
-              Fonte Verificada
-            </div>
-            <div className="p-3 rounded-lg border border-neutral-200 bg-white space-y-2 text-xs">
-              <div className="flex justify-between">
-                <span className="text-neutral-500">Provedor:</span>
-                <span className="font-medium text-neutral-900">{market.source_name || market.source_type}</span>
-              </div>
-              <div className="flex justify-between items-center">
-                <span className="text-neutral-500">URL Auditada:</span>
-                <a
-                  href={market.source_url}
-                  target="_blank"
-                  rel="noreferrer"
-                  className="text-neutral-900 hover:underline flex items-center gap-1 font-mono text-[11px] truncate max-w-[280px]"
-                >
-                  <span className="truncate">{market.source_url}</span>
-                  <ExternalLink className="w-3 h-3 shrink-0" />
-                </a>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-neutral-500">Identificador:</span>
-                <span className="font-mono text-[11px] text-neutral-700">{market.source_identifier}</span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-neutral-500">Regra de Resolução:</span>
-                <span className="text-neutral-700 text-right max-w-xs">{market.resolution_rule}</span>
-              </div>
+          <div className="pt-3 border-t border-[#E5E7E9] flex items-center gap-2">
+            <CheckCircle2 className="w-5 h-5 text-[#009344] shrink-0" />
+            <div className="text-sm font-bold text-[#202124]">
+              Quem acertou: <span className="text-[#007A38] text-base">{winnerOption ? winnerOption.label : 'Resultado confirmado'}</span>
             </div>
           </div>
-
-          {/* Divisão Econômica do Pool */}
-          <div className="space-y-2">
-            <div className="text-xs font-semibold text-neutral-800 uppercase tracking-wider">
-              Distribuição do Pool (70% · 20% · 10%)
-            </div>
-            <div className="grid grid-cols-3 gap-2 text-center text-xs">
-              <div className="p-3 bg-neutral-50 rounded-xl border border-neutral-200">
-                <div className="text-neutral-500 text-[11px]">70% Acertadores</div>
-                <div className="font-bold text-neutral-900 tabular-nums mt-0.5">
-                  {economics.winners_pool.toLocaleString('pt-BR')}
-                </div>
-                <div className="text-[10px] text-neutral-400">Créditos</div>
-              </div>
-
-              <div className="p-3 bg-neutral-50 rounded-xl border border-neutral-200">
-                <div className="text-neutral-500 text-[11px]">20% Criador</div>
-                <div className="font-bold text-neutral-900 tabular-nums mt-0.5">
-                  {economics.creator_reward.toLocaleString('pt-BR')}
-                </div>
-                <div className="text-[10px] text-neutral-400">Créditos</div>
-              </div>
-
-              <div className="p-3 bg-neutral-50 rounded-xl border border-neutral-200">
-                <div className="text-neutral-500 text-[11px]">10% Custo Operacional</div>
-                <div className="font-bold text-neutral-900 tabular-nums mt-0.5">
-                  {economics.platform_cost.toLocaleString('pt-BR')}
-                </div>
-                <div className="text-[10px] text-neutral-400">Créditos</div>
-              </div>
-            </div>
-          </div>
-
-          {/* Payload Bruto (JSON Auditável) */}
-          <div className="space-y-2">
-            <div className="flex items-center justify-between text-xs">
-              <span className="font-semibold text-neutral-800 uppercase tracking-wider">
-                Payload Bruto Coletado da Fonte
-              </span>
-              <span className="text-neutral-400 text-[11px]">
-                {log?.verified_at ? new Date(log.verified_at).toLocaleString('pt-BR') : 'Snapshot registrado'}
-              </span>
-            </div>
-            <pre className="p-3 bg-neutral-900 text-neutral-100 rounded-xl text-xs font-mono overflow-x-auto max-h-48 leading-relaxed">
-              {JSON.stringify(
-                log?.source_payload || {
-                  provider: market.source_type,
-                  identifier: market.source_identifier,
-                  status: 'VERIFIED_BY_ENGINE',
-                  observed_metric: 'Metrica confirmada na janela estipulada',
-                  timestamp_iso: market.resolution_at || new Date().toISOString(),
-                },
-                null,
-                2
-              )}
-            </pre>
-          </div>
-
         </div>
 
-        {/* Footer */}
-        <div className="pt-4 border-t border-neutral-200 flex justify-end">
+        {/* Fonte Verificada */}
+        <div className="space-y-3">
+          <div className="text-xs font-bold text-[#202124] uppercase tracking-wider">
+            Onde e como foi apurado
+          </div>
+
+          <div className="p-4 rounded-2xl border border-[#E5E7E9] bg-white space-y-3 text-sm">
+            <div className="flex justify-between items-center flex-wrap gap-1">
+              <span className="text-[#5F6368] font-medium">Fonte oficial:</span>
+              <span className="font-bold text-[#202124]">{market.source_name || market.source_type}</span>
+            </div>
+
+            <div className="flex justify-between items-center flex-wrap gap-1">
+              <span className="text-[#5F6368] font-medium">Link oficial consultado:</span>
+              <a
+                href={market.source_url}
+                target="_blank"
+                rel="noreferrer"
+                className="text-[#009344] hover:underline flex items-center gap-1 font-semibold truncate max-w-[240px] sm:max-w-xs"
+              >
+                <span className="truncate">{market.source_url}</span>
+                <ExternalLink className="w-3.5 h-3.5 shrink-0" />
+              </a>
+            </div>
+
+            <div className="pt-2 border-t border-[#E5E7E9]">
+              <span className="text-[#5F6368] font-medium block mb-1">Como foi medido:</span>
+              <span className="text-[#202124] font-semibold leading-relaxed">
+                {market.resolution_rule}
+              </span>
+            </div>
+          </div>
+        </div>
+
+        {/* Toggle para Dados Técnicos */}
+        <div>
+          <button
+            type="button"
+            onClick={() => setShowTechnicalDetails(!showTechnicalDetails)}
+            className="text-xs font-bold text-[#5F6368] hover:text-[#202124] flex items-center gap-1 py-1"
+          >
+            <span>{showTechnicalDetails ? 'Ocultar detalhes técnicos' : 'Ver detalhes técnicos da apuração'}</span>
+            {showTechnicalDetails ? <ChevronUp className="w-3.5 h-3.5" /> : <ChevronDown className="w-3.5 h-3.5" />}
+          </button>
+
+          {showTechnicalDetails && (
+            <div className="mt-3 p-4 bg-[#202124] text-neutral-200 rounded-2xl text-xs font-mono space-y-2">
+              <div className="text-neutral-400">
+                Horário da apuração: {log?.verified_at ? new Date(log.verified_at).toLocaleString('pt-BR') : new Date().toLocaleString('pt-BR')}
+              </div>
+              <div className="text-neutral-400">
+                Identificador: {market.source_identifier}
+              </div>
+              {log?.source_payload && (
+                <pre className="overflow-x-auto text-[11px] p-2 bg-black/40 rounded-lg text-emerald-400">
+                  {JSON.stringify(log.source_payload, null, 2)}
+                </pre>
+              )}
+            </div>
+          )}
+        </div>
+
+        {/* Botão Fechar */}
+        <div className="pt-2">
           <button
             onClick={onClose}
-            className="px-4 py-2 bg-neutral-900 text-white rounded-lg text-xs font-semibold hover:bg-neutral-800 transition-colors"
+            className="w-full h-12 bg-[#202124] hover:bg-[#333] text-white rounded-2xl font-bold text-sm transition-colors"
           >
-            Fechar Auditoria
+            Fechar
           </button>
         </div>
 

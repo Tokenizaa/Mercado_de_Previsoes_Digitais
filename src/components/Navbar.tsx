@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { marketStore } from '../services/store';
 import { User } from '../types/market';
-import { Coins, UserCheck, ShieldAlert, BookOpen, PlusCircle } from 'lucide-react';
+import { Coins, UserCheck, ShieldCheck, Home, Compass, BookmarkCheck, User as UserIcon } from 'lucide-react';
 
 interface NavbarProps {
   currentPath: string;
@@ -22,170 +22,183 @@ export const Navbar: React.FC<NavbarProps> = ({ currentPath, onNavigate }) => {
   }, []);
 
   const navLinks = [
-    { label: 'Descoberta', path: '/mercados' },
-    { label: 'Portfólio', path: '/portfolio' },
-    { label: 'Ranking', path: '/ranking' },
-    { label: 'Meus Mercados', path: '/meus-mercados' },
-    { label: 'Docs', path: '/docs' },
+    { label: 'Início', path: '/' },
+    { label: 'Explorar', path: '/mercados' },
+    { label: 'Meus palpites', path: '/portfolio' },
+    { label: 'Perfil', path: `/perfil/${user.username}` },
   ];
 
   return (
-    <header className="sticky top-0 z-40 bg-white/95 backdrop-blur-sm border-b border-neutral-200">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
-        
-        {/* Zone 1: Single text element wordmark */}
-        <div className="flex items-center gap-3">
+    <>
+      {/* Top Bar para Desktop e Mobile */}
+      <header className="sticky top-0 z-40 bg-white border-b border-[#E5E7E9]">
+        <div className="max-w-5xl mx-auto px-4 sm:px-6 h-18 flex items-center justify-between">
+          
+          {/* Logo / Brand */}
           <button
             onClick={() => onNavigate('/')}
-            className="text-left font-display font-bold text-xl tracking-tight text-neutral-900 hover:text-neutral-700 transition-colors"
+            className="flex items-center gap-2 text-left"
           >
-            Previsões Digitais
-          </button>
-        </div>
-
-        {/* Zone 2: 4-6 clean text navigation links */}
-        <nav className="hidden md:flex items-center gap-7 text-sm font-medium text-neutral-600">
-          <button
-            onClick={() => onNavigate('/')}
-            className={`hover:text-neutral-900 transition-colors ${currentPath === '/' ? 'text-neutral-900 font-semibold' : ''}`}
-          >
-            Início
-          </button>
-          {navLinks.map((link) => (
-            <button
-              key={link.path}
-              onClick={() => onNavigate(link.path)}
-              className={`hover:text-neutral-900 transition-colors ${currentPath === link.path ? 'text-neutral-900 font-semibold' : ''}`}
-            >
-              {link.label}
-            </button>
-          ))}
-        </nav>
-
-        {/* Zone 3: 1-2 primary actions */}
-        <div className="flex items-center gap-3">
-          {/* Action 1: Criar Mercado */}
-          <button
-            onClick={() => onNavigate('/criar')}
-            className="hidden sm:inline-flex items-center gap-1.5 px-3.5 py-1.5 text-xs font-semibold text-neutral-900 bg-neutral-100 hover:bg-neutral-200 rounded-lg transition-colors"
-          >
-            <PlusCircle className="w-3.5 h-3.5" />
-            <span>Criar Mercado</span>
-          </button>
-
-          {/* Admin Demo Shortcut */}
-          <button
-            onClick={() => onNavigate('/admin')}
-            title="Console de Auditoria e Resolução DEMO"
-            className={`p-2 rounded-lg text-xs font-medium border transition-colors ${
-              currentPath === '/admin'
-                ? 'bg-amber-50 border-amber-300 text-amber-900'
-                : 'border-neutral-200 text-neutral-600 hover:bg-neutral-50'
-            }`}
-          >
-            <ShieldAlert className="w-4 h-4" />
-          </button>
-
-          {/* User Credits & Profile Switcher */}
-          <div className="relative">
-            <button
-              onClick={() => setShowUserDropdown(!showUserDropdown)}
-              className="flex items-center gap-2 px-3 py-1.5 bg-neutral-900 text-white rounded-lg hover:bg-neutral-800 transition-colors text-xs font-medium"
-            >
-              <Coins className="w-3.5 h-3.5 text-amber-300" />
-              <span className="tabular-nums font-semibold tracking-wide">
-                {user.credits_balance.toLocaleString('pt-BR')}
+            <div className="w-9 h-9 rounded-xl bg-[#009344] flex items-center justify-center text-white font-extrabold text-xl shadow-xs">
+              P
+            </div>
+            <div>
+              <span className="font-extrabold text-2xl tracking-tight text-[#202124] block leading-none">
+                Palpites
               </span>
-              <span className="text-neutral-300 font-normal hidden lg:inline">Créditos</span>
-            </button>
+              <span className="text-[11px] font-semibold text-[#5F6368] uppercase tracking-wider">
+                da internet
+              </span>
+            </div>
+          </button>
 
-            {showUserDropdown && (
-              <div className="absolute right-0 mt-2 w-64 bg-white border border-neutral-200 rounded-xl shadow-lg p-3 z-50 text-xs">
-                <div className="pb-2 border-b border-neutral-100 mb-2">
-                  <div className="font-semibold text-neutral-900">{user.name}</div>
-                  <div className="text-neutral-500">@{user.username}</div>
-                  <div className="mt-1 flex items-center justify-between text-neutral-600 pt-1">
-                    <span>Saldo de demonstração:</span>
-                    <span className="font-bold text-neutral-900 tabular-nums">
-                      {user.credits_balance.toLocaleString('pt-BR')} Créditos
-                    </span>
+          {/* Links Principais (Desktop) */}
+          <nav className="hidden md:flex items-center gap-8 text-[17px] font-semibold text-[#5F6368]">
+            {navLinks.map((link) => {
+              const isActive =
+                link.path === '/'
+                  ? currentPath === '/'
+                  : currentPath.startsWith(link.path);
+
+              return (
+                <button
+                  key={link.path}
+                  onClick={() => onNavigate(link.path)}
+                  className={`py-2 transition-colors border-b-2 ${
+                    isActive
+                      ? 'text-[#009344] border-[#009344] font-bold'
+                      : 'border-transparent hover:text-[#202124]'
+                  }`}
+                >
+                  {link.label}
+                </button>
+              );
+            })}
+          </nav>
+
+          {/* Seus Créditos & Perfil */}
+          <div className="flex items-center gap-3">
+            
+            {/* Saldo de Créditos Amigável */}
+            <div className="relative">
+              <button
+                onClick={() => setShowUserDropdown(!showUserDropdown)}
+                className="flex items-center gap-2 px-3.5 py-2 bg-[#F7F8F7] hover:bg-[#E5E7E9] border border-[#E5E7E9] rounded-xl text-[#202124] font-bold text-sm transition-all"
+              >
+                <Coins className="w-4 h-4 text-amber-500 shrink-0" />
+                <span className="tabular-nums text-[16px] font-extrabold text-[#007A38]">
+                  {user.credits_balance.toLocaleString('pt-BR')}
+                </span>
+                <span className="text-xs font-semibold text-[#5F6368] hidden sm:inline">
+                  créditos
+                </span>
+              </button>
+
+              {/* Dropdown de Perfil Simples */}
+              {showUserDropdown && (
+                <div className="absolute right-0 mt-2 w-72 bg-white border border-[#E5E7E9] rounded-2xl shadow-xl p-4 z-50 text-sm">
+                  <div className="pb-3 border-b border-[#E5E7E9] mb-3">
+                    <div className="font-bold text-[#202124] text-base">{user.name}</div>
+                    <div className="text-xs text-[#5F6368]">@{user.username}</div>
+                    <div className="mt-2 bg-[#F7F8F7] p-2.5 rounded-xl border border-[#E5E7E9] flex justify-between items-center">
+                      <span className="text-xs text-[#5F6368]">Seus créditos:</span>
+                      <span className="font-extrabold text-base text-[#009344] tabular-nums">
+                        {user.credits_balance.toLocaleString('pt-BR')}
+                      </span>
+                    </div>
+                  </div>
+
+                  <div className="text-[12px] font-bold text-[#5F6368] uppercase tracking-wider mb-2">
+                    Trocar Perfil de Teste
+                  </div>
+
+                  <div className="space-y-1">
+                    {users.map((u) => (
+                      <button
+                        key={u.id}
+                        onClick={() => {
+                          marketStore.switchUser(u.id);
+                          setShowUserDropdown(false);
+                        }}
+                        className={`w-full flex items-center justify-between p-2.5 rounded-xl text-left transition-colors ${
+                          u.id === user.id
+                            ? 'bg-[#E5E7E9]/70 font-bold text-[#202124]'
+                            : 'hover:bg-[#F7F8F7] text-[#5F6368]'
+                        }`}
+                      >
+                        <div className="truncate">
+                          <div className="text-sm font-semibold">{u.name}</div>
+                          <div className="text-xs text-[#5F6368]">@{u.username}</div>
+                        </div>
+                        {u.id === user.id && <UserCheck className="w-4 h-4 text-[#009344] shrink-0" />}
+                      </button>
+                    ))}
+                  </div>
+
+                  <div className="mt-3 pt-3 border-t border-[#E5E7E9] flex justify-between items-center text-xs">
+                    <button
+                      onClick={() => {
+                        setShowUserDropdown(false);
+                        onNavigate('/admin');
+                      }}
+                      className="text-[#5F6368] hover:text-[#202124] flex items-center gap-1 font-semibold"
+                    >
+                      <ShieldCheck className="w-3.5 h-3.5" />
+                      <span>Área Admin</span>
+                    </button>
+                    <span className="text-[11px] text-[#5F6368]">100% Virtual</span>
                   </div>
                 </div>
+              )}
+            </div>
 
-                <div className="text-[11px] font-medium text-neutral-400 uppercase tracking-wider mb-1.5">
-                  Alternar Perfil Demo
-                </div>
-
-                <div className="space-y-1">
-                  {users.map((u) => (
-                    <button
-                      key={u.id}
-                      onClick={() => {
-                        marketStore.switchUser(u.id);
-                        setShowUserDropdown(false);
-                      }}
-                      className={`w-full flex items-center justify-between px-2.5 py-1.5 rounded-lg text-left transition-colors ${
-                        u.id === user.id ? 'bg-neutral-100 font-semibold text-neutral-900' : 'hover:bg-neutral-50 text-neutral-700'
-                      }`}
-                    >
-                      <div className="truncate">
-                        <div>{u.name}</div>
-                        <div className="text-[10px] text-neutral-400">@{u.username}</div>
-                      </div>
-                      {u.id === user.id && <UserCheck className="w-3.5 h-3.5 text-neutral-900 shrink-0" />}
-                    </button>
-                  ))}
-                </div>
-
-                <div className="mt-3 pt-2 border-t border-neutral-100 text-[11px] text-neutral-500 text-center">
-                  Ambiente de demonstração virtual
-                </div>
-              </div>
-            )}
           </div>
+
         </div>
+      </header>
 
-      </div>
-
-      {/* Mobile nav subbar */}
-      <div className="md:hidden flex items-center justify-between px-4 py-2 border-t border-neutral-100 bg-neutral-50 text-xs overflow-x-auto gap-4">
+      {/* Barra de Navegação Inferior Fixa no Mobile (Tinder / Instagram style) */}
+      <nav className="md:hidden fixed bottom-0 left-0 right-0 z-40 bg-white border-t border-[#E5E7E9] px-3 py-2 flex items-center justify-around shadow-lg">
         <button
           onClick={() => onNavigate('/')}
-          className={`${currentPath === '/' ? 'font-bold text-neutral-900' : 'text-neutral-600'} shrink-0`}
+          className={`flex flex-col items-center gap-0.5 py-1 px-3 rounded-xl transition-colors ${
+            currentPath === '/' ? 'text-[#009344] font-bold' : 'text-[#5F6368]'
+          }`}
         >
-          Início
+          <Home className="w-6 h-6" />
+          <span className="text-[12px] font-semibold">Início</span>
         </button>
+
         <button
           onClick={() => onNavigate('/mercados')}
-          className={`${currentPath === '/mercados' ? 'font-bold text-neutral-900' : 'text-neutral-600'} shrink-0`}
+          className={`flex flex-col items-center gap-0.5 py-1 px-3 rounded-xl transition-colors ${
+            currentPath.startsWith('/mercados') ? 'text-[#009344] font-bold' : 'text-[#5F6368]'
+          }`}
         >
-          Descoberta
+          <Compass className="w-6 h-6" />
+          <span className="text-[12px] font-semibold">Explorar</span>
         </button>
-        <button
-          onClick={() => onNavigate('/criar')}
-          className={`${currentPath === '/criar' ? 'font-bold text-neutral-900' : 'text-neutral-600'} shrink-0`}
-        >
-          + Criar
-        </button>
+
         <button
           onClick={() => onNavigate('/portfolio')}
-          className={`${currentPath === '/portfolio' ? 'font-bold text-neutral-900' : 'text-neutral-600'} shrink-0`}
+          className={`flex flex-col items-center gap-0.5 py-1 px-3 rounded-xl transition-colors ${
+            currentPath === '/portfolio' ? 'text-[#009344] font-bold' : 'text-[#5F6368]'
+          }`}
         >
-          Portfólio
+          <BookmarkCheck className="w-6 h-6" />
+          <span className="text-[12px] font-semibold">Meus palpites</span>
         </button>
+
         <button
-          onClick={() => onNavigate('/ranking')}
-          className={`${currentPath === '/ranking' ? 'font-bold text-neutral-900' : 'text-neutral-600'} shrink-0`}
+          onClick={() => onNavigate(`/perfil/${user.username}`)}
+          className={`flex flex-col items-center gap-0.5 py-1 px-3 rounded-xl transition-colors ${
+            currentPath.startsWith('/perfil') ? 'text-[#009344] font-bold' : 'text-[#5F6368]'
+          }`}
         >
-          Ranking
+          <UserIcon className="w-6 h-6" />
+          <span className="text-[12px] font-semibold">Perfil</span>
         </button>
-        <button
-          onClick={() => onNavigate('/meus-mercados')}
-          className={`${currentPath === '/meus-mercados' ? 'font-bold text-neutral-900' : 'text-neutral-600'} shrink-0`}
-        >
-          Meus Mercados
-        </button>
-      </div>
-    </header>
+      </nav>
+    </>
   );
 };

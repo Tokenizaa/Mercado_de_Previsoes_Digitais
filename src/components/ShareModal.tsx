@@ -11,7 +11,7 @@ export const ShareModal: React.FC<ShareModalProps> = ({ market, onClose }) => {
   const [copied, setCopied] = useState(false);
   const shareUrl = `${window.location.origin}/mercados/${market.slug}`;
 
-  const shareText = `O que você acha que vai acontecer?\n\n"${market.title}"\n\nDê sua previsão no Mercado de Previsões Digitais:\n${shareUrl}`;
+  const shareText = `O que você acha que vai acontecer?\n\n"${market.title}"\n\nDê o seu palpite aqui:\n${shareUrl}`;
 
   const handleCopy = () => {
     navigator.clipboard.writeText(shareUrl);
@@ -31,67 +31,76 @@ export const ShareModal: React.FC<ShareModalProps> = ({ market, onClose }) => {
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs">
-      <div className="bg-white rounded-2xl max-w-md w-full p-6 border border-neutral-200 shadow-xl">
-        <div className="flex items-center justify-between pb-3 border-b border-neutral-100">
+      <div className="bg-white rounded-3xl max-w-md w-full p-6 sm:p-7 border border-[#E5E7E9] shadow-2xl space-y-5">
+        
+        {/* Topo */}
+        <div className="flex items-center justify-between pb-3 border-b border-[#E5E7E9]">
           <div className="flex items-center gap-2">
-            <Share2 className="w-5 h-5 text-neutral-800" />
-            <h3 className="font-semibold text-neutral-900 text-sm">Compartilhar Mercado</h3>
+            <Share2 className="w-5 h-5 text-[#009344]" />
+            <h3 className="font-extrabold text-[#202124] text-lg">
+              Compartilhar este palpite
+            </h3>
           </div>
-          <button onClick={onClose} className="p-1 rounded-md text-neutral-400 hover:text-neutral-700">
-            <X className="w-4 h-4" />
+          <button
+            onClick={onClose}
+            className="p-1.5 rounded-xl text-[#5F6368] hover:text-[#202124] hover:bg-[#F7F8F7] transition-colors"
+          >
+            <X className="w-5 h-5" />
           </button>
         </div>
 
-        <div className="py-4 space-y-4">
-          <p className="text-xs text-neutral-600 line-clamp-2">
-            "{market.title}"
-          </p>
+        {/* Pergunta */}
+        <p className="text-sm font-bold text-[#202124] line-clamp-2 bg-[#F7F8F7] p-3.5 rounded-2xl border border-[#E5E7E9]">
+          "{market.title}"
+        </p>
 
-          <div className="grid grid-cols-2 gap-2">
+        {/* Botões Grandes de Compartilhamento */}
+        <div className="grid grid-cols-2 gap-3">
+          <button
+            onClick={handleWhatsApp}
+            className="h-12 flex items-center justify-center gap-2 bg-[#25D366] hover:bg-[#20ba5a] text-white rounded-2xl font-bold text-sm transition-colors shadow-xs"
+          >
+            <MessageCircle className="w-5 h-5" />
+            <span>WhatsApp</span>
+          </button>
+
+          <button
+            onClick={handleTwitter}
+            className="h-12 flex items-center justify-center gap-2 bg-[#202124] hover:bg-[#333] text-white rounded-2xl font-bold text-sm transition-colors shadow-xs"
+          >
+            <span>Postar no X</span>
+          </button>
+        </div>
+
+        {/* Link Direto */}
+        <div className="space-y-1.5 pt-1">
+          <div className="text-xs font-bold text-[#5F6368]">Copiar link</div>
+          <div className="flex items-center gap-2">
+            <input
+              type="text"
+              readOnly
+              value={shareUrl}
+              className="w-full h-11 px-3.5 bg-[#F7F8F7] border border-[#E5E7E9] rounded-xl text-xs font-mono text-[#202124] truncate outline-none"
+            />
             <button
-              onClick={handleWhatsApp}
-              className="flex items-center justify-center gap-2 py-2.5 px-3 bg-emerald-50 text-emerald-800 hover:bg-emerald-100 rounded-xl text-xs font-semibold transition-colors"
+              onClick={handleCopy}
+              className="h-11 px-4 bg-[#009344] hover:bg-[#007A38] text-white rounded-xl text-xs font-bold transition-colors shrink-0 flex items-center gap-1.5"
             >
-              <MessageCircle className="w-4 h-4 text-emerald-600" />
-              <span>WhatsApp</span>
+              {copied ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
+              <span>{copied ? 'Copiado!' : 'Copiar'}</span>
             </button>
-
-            <button
-              onClick={handleTwitter}
-              className="flex items-center justify-center gap-2 py-2.5 px-3 bg-neutral-900 text-white hover:bg-neutral-800 rounded-xl text-xs font-semibold transition-colors"
-            >
-              <span>X / Twitter</span>
-            </button>
-          </div>
-
-          <div className="pt-2">
-            <div className="text-[11px] text-neutral-400 font-medium mb-1">Link Direto</div>
-            <div className="flex items-center gap-2">
-              <input
-                type="text"
-                readOnly
-                value={shareUrl}
-                className="w-full text-xs font-mono bg-neutral-50 border border-neutral-200 rounded-lg px-3 py-2 text-neutral-700 truncate"
-              />
-              <button
-                onClick={handleCopy}
-                className="px-3 py-2 bg-neutral-100 hover:bg-neutral-200 text-neutral-800 rounded-lg text-xs font-semibold transition-colors shrink-0 flex items-center gap-1"
-              >
-                {copied ? <Check className="w-3.5 h-3.5 text-emerald-600" /> : <Copy className="w-3.5 h-3.5" />}
-                <span>{copied ? 'Copiado!' : 'Copiar'}</span>
-              </button>
-            </div>
           </div>
         </div>
 
-        <div className="pt-2 border-t border-neutral-100 flex justify-end">
+        <div className="pt-2">
           <button
             onClick={onClose}
-            className="text-xs text-neutral-500 hover:text-neutral-900"
+            className="w-full h-11 bg-[#F7F8F7] hover:bg-[#E5E7E9] text-[#202124] rounded-xl text-xs font-bold transition-colors"
           >
             Fechar
           </button>
         </div>
+
       </div>
     </div>
   );

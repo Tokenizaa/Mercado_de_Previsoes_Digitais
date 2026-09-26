@@ -7,8 +7,8 @@ Fonte de verdade: este arquivo + docs/DECISIONS.md + histórico de commits do Gi
 - Fase 1 — Fundação: concluída
 - Fase 2 — Backend canônico: concluída
 - Fase 3 — Resolução automática / fontes reais: planejada
-- Fase 4 — Simplificação do frontend: PRÓXIMA
-- Fase 5 — Golden Path público: futura
+- Fase 4 — Simplificação do frontend: concluída
+- Fase 5 — Golden Path público: PRÓXIMA
 - Fase 6 — Expansão de criação: futura
 
 ## Fase 1 — Fundação
@@ -37,7 +37,7 @@ A Fase 3 não deve criar novas funcionalidades de frontend.
 
 # Fase 4 — Simplificação radical do frontend
 
-Status: PRÓXIMA
+Status: CONCLUÍDA
 
 Objetivo: transformar o frontend público em uma experiência brasileira, simples e rápida, com baixa carga de leitura.
 

@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { marketStore } from '../services/store';
 import { Category, Market } from '../types/market';
 import { MarketCard } from '../components/MarketCard';
-import { ArrowLeft, Plus } from 'lucide-react';
+import { ArrowLeft } from 'lucide-react';
 
 interface CategoryPageProps {
   categorySlug: string;
@@ -24,70 +24,60 @@ export const CategoryPage: React.FC<CategoryPageProps> = ({ categorySlug, onNavi
     { title: string; subtitle: string; categoryKey: Category }
   > = {
     internet_creators: {
-      title: 'Internet & Creators',
-      subtitle: 'Disputas de mesacasts, streamers, canais do YouTube e criadores digitais brasileiros.',
+      title: 'Internet e Creators',
+      subtitle: 'Disputas de canais, streamers, mesacasts e grandes criadores digitais brasileiros.',
       categoryKey: 'internet_creators',
     },
     esportes: {
-      title: 'Esportes & Lutas',
-      subtitle: 'Combates do Fight Music Show, transmissões de CazéTV e grandes finais esportivas.',
+      title: 'Esportes e Lutas',
+      subtitle: 'Combates, eventos esportivos e transmissões de grandes decisões.',
       categoryKey: 'esportes',
     },
     musica: {
-      title: 'Música & Streaming',
-      subtitle: 'Top 50 Brasil no Spotify, lançamentos e prêmios como o Prêmio Multishow.',
+      title: 'Música e Streaming',
+      subtitle: 'Lançamentos, paradas de streaming e premiações musicais.',
       categoryKey: 'musica',
     },
     entretenimento: {
-      title: 'Entretenimento & TV',
-      subtitle: 'Programas de auditório, realities, premiações e métricas consolidadas de Ibope.',
+      title: 'Entretenimento e TV',
+      subtitle: 'Realities, estreias, programas e momentos marcantes da cultura pop.',
       categoryKey: 'entretenimento',
     },
   };
 
   const current = categoryDetails[categorySlug] || {
-    title: 'Categoria',
-    subtitle: 'Mercados de previsões sobre acontecimentos populares.',
+    title: 'Palpites',
+    subtitle: 'Palpites sobre acontecimentos populares da internet.',
     categoryKey: 'internet_creators' as Category,
   };
 
   const filtered = markets.filter((m) => m.category === current.categoryKey);
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 py-8 space-y-8">
+    <div className="max-w-5xl mx-auto px-4 sm:px-6 py-8 sm:py-10 space-y-8 pb-24">
       
       <button
         onClick={() => onNavigate('/mercados')}
-        className="flex items-center gap-1.5 text-xs font-semibold text-neutral-600 hover:text-neutral-900 transition-colors"
+        className="inline-flex items-center gap-2 text-[15px] font-bold text-[#5F6368] hover:text-[#202124] transition-colors py-1"
       >
-        <ArrowLeft className="w-4 h-4" />
-        <span>Voltar para Descoberta</span>
+        <ArrowLeft className="w-5 h-5" />
+        <span>Voltar para Explorar</span>
       </button>
 
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        <div>
-          <h1 className="font-display font-bold text-3xl sm:text-4xl text-neutral-900 tracking-tight">
-            {current.title}
-          </h1>
-          <p className="text-sm text-neutral-600 mt-1 max-w-2xl">
-            {current.subtitle}
-          </p>
-        </div>
-
-        <button
-          onClick={() => onNavigate('/criar')}
-          className="px-4 py-2.5 bg-neutral-900 hover:bg-neutral-800 text-white rounded-xl text-xs font-semibold flex items-center gap-1.5 self-start sm:self-auto"
-        >
-          <Plus className="w-4 h-4" />
-          <span>Criar Mercado nesta Categoria</span>
-        </button>
+      <div>
+        <h1 className="font-extrabold text-[32px] sm:text-[40px] text-[#202124] tracking-tight">
+          {current.title}
+        </h1>
+        <p className="text-[18px] text-[#5F6368] mt-1 max-w-2xl">
+          {current.subtitle}
+        </p>
       </div>
 
-      <div className="text-xs text-neutral-500">
-        Mostrando <strong className="text-neutral-900">{filtered.length}</strong> mercados disponíveis
+      <div className="text-sm font-semibold text-[#5F6368]">
+        Mostrando <strong className="text-[#202124]">{filtered.length}</strong> palpites disponíveis
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {filtered.map((market) => (
           <MarketCard
             key={market.id}

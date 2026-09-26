@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { marketStore } from '../services/store';
 import { Position } from '../types/market';
-import { Coins, CheckCircle, Clock, TrendingUp, AlertCircle, ArrowRight } from 'lucide-react';
+import { Coins, CheckCircle2, Clock, Sparkles, ArrowRight, LogOut, ChevronRight } from 'lucide-react';
 
 interface PortfolioProps {
   onNavigate: (path: string) => void;
@@ -11,6 +11,7 @@ export const Portfolio: React.FC<PortfolioProps> = ({ onNavigate }) => {
   const [currentUser, setCurrentUser] = useState(marketStore.getCurrentUser());
   const [positions, setPositions] = useState<Position[]>(marketStore.getUserPositions());
   const [feedback, setFeedback] = useState<string | null>(null);
+  const [filter, setFilter] = useState<'all' | 'open' | 'resolved'>('all');
 
   useEffect(() => {
     const unsub = marketStore.subscribe(() => {
@@ -21,198 +22,238 @@ export const Portfolio: React.FC<PortfolioProps> = ({ onNavigate }) => {
   }, []);
 
   const openPositions = positions.filter((p) => p.status === 'OPEN');
-  const resolvedPositions = positions.filter((p) => p.status !== 'OPEN');
+  const wonPositions = positions.filter((p) => p.status === 'WON');
+  const lostPositions = positions.filter((p) => p.status === 'LOST');
 
-  const totalCreditsSpent = positions.reduce((sum, p) => sum + p.credits_spent, 0);
-  const totalPayoutsWon = positions
-    .filter((p) => p.status === 'WON')
-    .reduce((sum, p) => sum + (p.credits_payout || 0), 0);
+  const filteredPositions = positions.filter((p) => {
+    if (filter === 'open') return p.status === 'OPEN';
+    if (filter === 'resolved') return p.status !== 'OPEN';
+    return true;
+  });
 
-  const handleQuickSell = async (posId: string) => {
+  const handleSair = async (posId: string) => {
+    if (!window.confirm('Quer sair deste palpite e receber seus créditos de volta?')) return;
     const res = await marketStore.sellPosition(posId);
     if (res.success) {
-      setFeedback('Posição liquidada com sucesso! Créditos reembolsados.');
+      setFeedback('Você saiu do palpite com sucesso. Seus créditos foram devolvidos!');
       setTimeout(() => setFeedback(null), 3500);
     }
   };
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 py-8 space-y-8">
+    <div className="max-w-4xl mx-auto px-4 sm:px-6 py-8 sm:py-10 space-y-8 pb-24">
       
-      {/* Header */}
+      {/* Cabeçalho */}
       <div>
-        <h1 className="font-display font-bold text-3xl sm:text-4xl text-neutral-900 tracking-tight">
-          Seu Portfólio de Previsões
+        <h1 className="font-extrabold text-[32px] sm:text-[40px] text-[#202124] tracking-tight">
+          Meus palpites
         </h1>
-        <p className="text-sm text-neutral-600 mt-1">
-          Acompanhe suas posições abertas, liquidações e retornos obtidos em Créditos virtuais.
+        <p className="text-[18px] text-[#5F6368] mt-1">
+          Acompanhe suas escolhas e veja se você acertou.
         </p>
       </div>
 
       {feedback && (
-        <div className="p-3 bg-emerald-50 border border-emerald-200 rounded-xl text-emerald-800 text-xs flex items-center gap-2">
-          <CheckCircle className="w-4 h-4 shrink-0" />
+        <div className="p-4 bg-emerald-50 border border-emerald-200 rounded-2xl text-emerald-900 text-sm font-semibold flex items-center gap-2">
+          <CheckCircle2 className="w-5 h-5 text-[#009344] shrink-0" />
           <span>{feedback}</span>
         </div>
       )}
 
-      {/* Summary Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-4 gap-4">
+      {/* Cartões de Resumo Simples */}
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
         
-        <div className="p-5 bg-white rounded-2xl border border-neutral-200">
-          <div className="flex items-center justify-between text-xs text-neutral-500 mb-1">
-            <span>Saldo Atual</span>
-            <Coins className="w-4 h-4 text-amber-500" />
+        {/* Meus Créditos */}
+        <div className="p-5 bg-white rounded-3xl border border-[#E5E7E9] shadow-xs">
+          <div className="flex items-center justify-between text-sm font-bold text-[#5F6368] mb-1">
+            <span>Meus créditos</span>
+            <Coins className="w-5 h-5 text-amber-500" />
           </div>
-          <div className="text-2xl font-bold text-neutral-900 tabular-nums">
+          <div className="text-[28px] font-extrabold text-[#009344] tabular-nums">
             {currentUser.credits_balance.toLocaleString('pt-BR')}
           </div>
-          <div className="text-[11px] text-neutral-400 mt-1">Créditos de demonstração</div>
+          <div className="text-xs text-[#5F6368] mt-0.5">Saldo disponível para palpitar</div>
         </div>
 
-        <div className="p-5 bg-white rounded-2xl border border-neutral-200">
-          <div className="flex items-center justify-between text-xs text-neutral-500 mb-1">
-            <span>Posições Ativas</span>
-            <Clock className="w-4 h-4 text-neutral-400" />
+        {/* Em Andamento */}
+        <div className="p-5 bg-white rounded-3xl border border-[#E5E7E9] shadow-xs">
+          <div className="flex items-center justify-between text-sm font-bold text-[#5F6368] mb-1">
+            <span>Em andamento</span>
+            <Clock className="w-5 h-5 text-[#5F6368]" />
           </div>
-          <div className="text-2xl font-bold text-neutral-900 tabular-nums">
+          <div className="text-[28px] font-extrabold text-[#202124] tabular-nums">
             {openPositions.length}
           </div>
-          <div className="text-[11px] text-neutral-400 mt-1">Mercados em andamento</div>
+          <div className="text-xs text-[#5F6368] mt-0.5">Palpites aguardando o resultado</div>
         </div>
 
-        <div className="p-5 bg-white rounded-2xl border border-neutral-200">
-          <div className="flex items-center justify-between text-xs text-neutral-500 mb-1">
-            <span>Créditos Alocados</span>
-            <TrendingUp className="w-4 h-4 text-neutral-400" />
+        {/* Você Acertou */}
+        <div className="p-5 bg-white rounded-3xl border border-[#E5E7E9] shadow-xs">
+          <div className="flex items-center justify-between text-sm font-bold text-[#5F6368] mb-1">
+            <span>Você acertou</span>
+            <Sparkles className="w-5 h-5 text-amber-500" />
           </div>
-          <div className="text-2xl font-bold text-neutral-900 tabular-nums">
-            {openPositions.reduce((s, p) => s + p.credits_spent, 0).toLocaleString('pt-BR')}
+          <div className="text-[28px] font-extrabold text-[#007A38] tabular-nums">
+            {wonPositions.length}
           </div>
-          <div className="text-[11px] text-neutral-400 mt-1">Em posições abertas</div>
-        </div>
-
-        <div className="p-5 bg-white rounded-2xl border border-neutral-200">
-          <div className="flex items-center justify-between text-xs text-neutral-500 mb-1">
-            <span>Retornos Recebidos</span>
-            <CheckCircle className="w-4 h-4 text-emerald-600" />
-          </div>
-          <div className="text-2xl font-bold text-emerald-700 tabular-nums">
-            {totalPayoutsWon.toLocaleString('pt-BR')}
-          </div>
-          <div className="text-[11px] text-neutral-400 mt-1">Total de acertos resolvidos</div>
+          <div className="text-xs text-[#5F6368] mt-0.5">Palpites que deram certo</div>
         </div>
 
       </div>
 
-      {/* Posições Abertas */}
-      <div className="bg-white rounded-2xl border border-neutral-200 overflow-hidden">
-        <div className="p-6 border-b border-neutral-100 flex items-center justify-between">
-          <h2 className="font-display font-bold text-lg text-neutral-900">
-            Posições Abertas ({openPositions.length})
-          </h2>
-          <span className="text-xs text-neutral-400">
-            Você pode vender sua posição a qualquer momento antes do fechamento
-          </span>
-        </div>
+      {/* Filtros Simples */}
+      <div className="flex items-center gap-2">
+        <button
+          onClick={() => setFilter('all')}
+          className={`h-10 px-4 rounded-xl font-bold text-sm transition-colors ${
+            filter === 'all'
+              ? 'bg-[#202124] text-white'
+              : 'bg-white text-[#5F6368] hover:text-[#202124] border border-[#E5E7E9]'
+          }`}
+        >
+          Todos ({positions.length})
+        </button>
+        <button
+          onClick={() => setFilter('open')}
+          className={`h-10 px-4 rounded-xl font-bold text-sm transition-colors ${
+            filter === 'open'
+              ? 'bg-[#202124] text-white'
+              : 'bg-white text-[#5F6368] hover:text-[#202124] border border-[#E5E7E9]'
+          }`}
+        >
+          Em andamento ({openPositions.length})
+        </button>
+        <button
+          onClick={() => setFilter('resolved')}
+          className={`h-10 px-4 rounded-xl font-bold text-sm transition-colors ${
+            filter === 'resolved'
+              ? 'bg-[#202124] text-white'
+              : 'bg-white text-[#5F6368] hover:text-[#202124] border border-[#E5E7E9]'
+          }`}
+        >
+          Encerrados ({wonPositions.length + lostPositions.length})
+        </button>
+      </div>
 
-        {openPositions.length > 0 ? (
-          <div className="divide-y divide-neutral-100">
-            {openPositions.map((pos) => {
-              const market = marketStore.getMarketById(pos.market_id);
-              const option = market?.options.find((o) => o.id === pos.option_id);
-              const estProb = option?.current_probability || 50;
-              const estLiquidation = Math.floor(pos.units * (estProb / 100) * 100 * 0.95);
+      {/* Lista de Palpites */}
+      <div className="space-y-4">
+        {filteredPositions.length > 0 ? (
+          filteredPositions.map((pos) => {
+            const market = marketStore.getMarketById(pos.market_id);
+            const isMarketClosed = market?.status === 'CLOSED' || market?.status === 'AWAITING_RESULT';
+            const isMarketResolved = market?.status === 'DISTRIBUTED' || market?.status === 'RESOLVED';
+            const userWon = pos.status === 'WON';
+            const userLost = pos.status === 'LOST';
 
-              return (
-                <div key={pos.id} className="p-6 flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
-                  <div className="space-y-1.5 flex-1">
-                    <div className="text-xs text-neutral-500">
-                      Mercado: <span className="font-medium text-neutral-700">{pos.market_title}</span>
-                    </div>
-                    <div className="flex items-center gap-3">
-                      <span className="text-sm font-bold text-neutral-900">
-                        {pos.option_label}
-                      </span>
-                      <span className="text-xs font-semibold text-neutral-600 tabular-nums">
-                        Probabilidade atual: {estProb}%
-                      </span>
-                    </div>
-                    <div className="flex items-center gap-4 text-xs text-neutral-500 pt-1">
-                      <span>Unidades: <strong className="text-neutral-900 tabular-nums">{pos.units}</strong></span>
-                      <span>Créditos gastos: <strong className="text-neutral-900 tabular-nums">{pos.credits_spent}</strong></span>
-                      <span>Est. liquidação: <strong className="text-emerald-700 tabular-nums">~{estLiquidation} Créditos</strong></span>
-                    </div>
+            return (
+              <div
+                key={pos.id}
+                className="bg-white rounded-3xl border border-[#E5E7E9] p-6 space-y-4 shadow-xs transition-all hover:border-[#009344]"
+              >
+                {/* Título do Palpite */}
+                <div className="flex items-start justify-between gap-4">
+                  <div>
+                    <h3 className="font-extrabold text-[20px] text-[#202124] leading-snug">
+                      {pos.market_title}
+                    </h3>
                   </div>
 
-                  <div className="flex items-center gap-2 shrink-0">
-                    <button
-                      onClick={() => handleQuickSell(pos.id)}
-                      className="px-3.5 py-2 text-xs font-semibold bg-neutral-100 hover:bg-neutral-200 text-neutral-800 rounded-lg transition-colors"
-                    >
-                      Vender Posição
-                    </button>
-                    {pos.market_slug && (
-                      <button
-                        onClick={() => onNavigate(`/mercados/${pos.market_slug}`)}
-                        className="px-3.5 py-2 text-xs font-semibold bg-neutral-900 hover:bg-neutral-800 text-white rounded-lg transition-colors flex items-center gap-1"
-                      >
-                        <span>Abrir Mercado</span>
-                        <ArrowRight className="w-3.5 h-3.5" />
-                      </button>
+                  {/* Badge de Status Simples */}
+                  <div className="shrink-0">
+                    {userWon ? (
+                      <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#009344]/10 text-[#007A38] font-bold text-xs">
+                        <CheckCircle2 className="w-4 h-4" />
+                        <span>Você acertou!</span>
+                      </span>
+                    ) : userLost ? (
+                      <span className="inline-flex items-center px-3 py-1 rounded-full bg-neutral-100 text-[#5F6368] font-bold text-xs">
+                        Você não acertou dessa vez
+                      </span>
+                    ) : isMarketClosed ? (
+                      <span className="inline-flex items-center px-3 py-1 rounded-full bg-amber-100 text-amber-800 font-bold text-xs">
+                        Esperando o resultado
+                      </span>
+                    ) : (
+                      <span className="inline-flex items-center px-3 py-1 rounded-full bg-[#009344]/10 text-[#007A38] font-bold text-xs">
+                        Ainda dá para participar
+                      </span>
                     )}
                   </div>
                 </div>
-              );
-            })}
-          </div>
+
+                {/* Escolha do Usuário */}
+                <div className="p-4 rounded-2xl bg-[#F7F8F7] border border-[#E5E7E9] flex items-center justify-between flex-wrap gap-2">
+                  <div>
+                    <span className="text-xs font-bold text-[#5F6368] uppercase tracking-wider block">
+                      Sua escolha
+                    </span>
+                    <span className="font-extrabold text-[18px] text-[#202124]">
+                      {pos.option_label}
+                    </span>
+                  </div>
+
+                  <div className="text-right">
+                    <span className="text-xs font-semibold text-[#5F6368] block">
+                      Créditos usados
+                    </span>
+                    <span className="font-extrabold text-[16px] text-[#202124] tabular-nums">
+                      {pos.credits_spent.toLocaleString('pt-BR')} créditos
+                    </span>
+                  </div>
+                </div>
+
+                {/* Resultado do acerto com créditos ganhos */}
+                {userWon && pos.credits_payout && (
+                  <div className="p-3.5 bg-emerald-50 border border-emerald-200 rounded-xl text-emerald-900 font-bold text-sm flex items-center justify-between">
+                    <span>Parabéns pelo acerto!</span>
+                    <span className="text-base text-[#007A38] font-extrabold">
+                      +{pos.credits_payout.toLocaleString('pt-BR')} créditos
+                    </span>
+                  </div>
+                )}
+
+                {/* Ações */}
+                <div className="flex items-center justify-between pt-2 border-t border-[#E5E7E9] flex-wrap gap-2">
+                  <div>
+                    {pos.status === 'OPEN' && !isMarketClosed && !isMarketResolved && (
+                      <button
+                        onClick={() => handleSair(pos.id)}
+                        className="text-sm font-bold text-[#5F6368] hover:text-rose-600 transition-colors flex items-center gap-1.5 py-1.5"
+                      >
+                        <LogOut className="w-4 h-4" />
+                        <span>Sair deste palpite</span>
+                      </button>
+                    )}
+                  </div>
+
+                  {pos.market_slug && (
+                    <button
+                      onClick={() => onNavigate(`/mercados/${pos.market_slug}`)}
+                      className="h-11 px-5 bg-[#009344] hover:bg-[#007A38] text-white rounded-xl font-bold text-sm flex items-center gap-1.5 transition-colors ml-auto"
+                    >
+                      <span>Ver palpite</span>
+                      <ChevronRight className="w-4 h-4" />
+                    </button>
+                  )}
+                </div>
+
+              </div>
+            );
+          })
         ) : (
-          <div className="p-12 text-center text-neutral-500 text-xs space-y-3">
-            <p>Você ainda não possui posições abertas.</p>
+          <div className="p-12 text-center bg-white rounded-3xl border border-[#E5E7E9] space-y-4">
+            <p className="text-[18px] text-[#5F6368]">
+              Você ainda não deu nenhum palpite nessa seção.
+            </p>
             <button
               onClick={() => onNavigate('/mercados')}
-              className="px-4 py-2 bg-neutral-900 text-white font-semibold rounded-lg text-xs"
+              className="h-[52px] px-8 bg-[#009344] hover:bg-[#007A38] text-white font-extrabold text-[16px] rounded-2xl transition-colors shadow-xs"
             >
-              Explorar Mercados
+              Explorar palpites em alta
             </button>
           </div>
         )}
       </div>
-
-      {/* Histórico / Posições Resolvidas */}
-      {resolvedPositions.length > 0 && (
-        <div className="bg-white rounded-2xl border border-neutral-200 overflow-hidden">
-          <div className="p-6 border-b border-neutral-100">
-            <h2 className="font-display font-bold text-lg text-neutral-900">
-              Histórico de Posições Resolvidas e Liquidadas ({resolvedPositions.length})
-            </h2>
-          </div>
-
-          <div className="divide-y divide-neutral-100 text-xs">
-            {resolvedPositions.map((pos) => (
-              <div key={pos.id} className="p-5 flex items-center justify-between">
-                <div>
-                  <div className="font-medium text-neutral-900">{pos.market_title}</div>
-                  <div className="text-neutral-500 mt-0.5">
-                    Opção: <strong>{pos.option_label}</strong> · {pos.credits_spent} Créditos alocados
-                  </div>
-                </div>
-
-                <div className="text-right">
-                  <div className={`font-bold tabular-nums ${pos.status === 'WON' ? 'text-emerald-700' : 'text-neutral-500'}`}>
-                    {pos.status === 'WON'
-                      ? `+${(pos.credits_payout || 0).toLocaleString('pt-BR')} Créditos`
-                      : pos.status === 'CLOSED'
-                      ? `Liquidado (+${pos.credits_payout || 0} Créditos)`
-                      : 'Não premiado'}
-                  </div>
-                  <div className="text-[10px] text-neutral-400 capitalize">{pos.status}</div>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      )}
 
     </div>
   );

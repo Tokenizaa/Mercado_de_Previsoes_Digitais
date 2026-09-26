@@ -836,3 +836,40 @@ export async function getPortfolioFromSupabase(
     recentLedger: (ledger as PredictionCreditLedger[]) || [],
   };
 }
+
+
+export async function getProfileByUsernameFromSupabase(supabase: SupabaseClient, username: string): Promise<PredictionProfile | null> {
+  const { data, error } = await supabase.from('prediction_profiles').select('*').ilike('username', username).maybeSingle();
+  if (error || !data) return null;
+  return data as PredictionProfile;
+}
+
+export async function updateOwnProfileInSupabase(
+  supabase: SupabaseClient,
+  userId: string,
+  changes: { display_name?: string; bio?: string; username?: string; avatar_url?: string | null }
+): Promise<{ success: boolean; profile?: PredictionProfile; error?: string }> {
+  const payload: Record<string, unknown> = { updated_at: new Date().toISOString() };
+  if (changes.display_name !== undefined) {
+    const value = changes.display_name.trim();
+    if (!value || value.length > 80) return { success: false, error: 'Nome inválido.' };
+    payload.display_name = value;
+  }
+  if (changes.bio !== undefined) {
+    const value = changes.bio.trim();
+    if (value.length > 280) return { success: false, error: 'A bio pode ter no máximo 280 caracteres.' };
+    payload.bio = value;
+  }
+  if (changes.username !== undefined) {
+    const value = changes.username.trim().toLowerCase();
+    if (!/^[a-z0-9_]{3,20}$/.test(value)) return { success: false, error: 'O @nome deve ter 3 a 20 caracteres e usar apenas letras, números e _.' };
+    const { data: taken } = await supabase.from('prediction_profiles').select('id').ilike('username', value).neq('id', userId).maybeSingle();
+    if (taken) return { success: false, error: 'Este @nome já está em uso.' };
+    payload.username = value;
+  }
+  if (changes.avatar_url !== undefined) payload.avatar_url = changes.avatar_url;
+
+  const { data, error } = await supabase.from('prediction_profiles').update(payload).eq('id', userId).select('*').single();
+  if (error || !data) return { success: false, error: error?.message || 'Não foi possível atualizar o perfil.' };
+  return { success: true, profile: data as PredictionProfile };
+}

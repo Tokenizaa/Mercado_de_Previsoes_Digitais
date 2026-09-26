@@ -22,14 +22,14 @@ import {
   PredictionCreditLedger,
 } from '../../worker/src/types';
 
+let authToken: string | null = null;
+export function setAuthToken(token: string | null) { authToken = token; }
+export function getAuthToken() { return authToken; }
+
 const API_BASE = import.meta.env.VITE_WORKER_API_URL || '/api';
 
 function getAuthHeader(): Record<string, string> {
-  const token = localStorage.getItem('supabase_auth_token') || sessionStorage.getItem('supabase_auth_token');
-  if (token) {
-    return { Authorization: `Bearer ${token}` };
-  }
-  return {};
+  return authToken ? { Authorization: `Bearer ${authToken}` } : {};
 }
 
 export const workerApi = {

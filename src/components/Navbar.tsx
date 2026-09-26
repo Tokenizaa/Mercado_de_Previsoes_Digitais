@@ -166,7 +166,7 @@ export const Navbar: React.FC<NavbarProps> = ({ currentPath, onNavigate }) => {
           <span className="text-[12px] font-semibold">Meus palpites</span>
         </button>
 
-        <button
+        {session ? <button
           onClick={() => user && onNavigate(`/perfil/${user.username}`)}
           className={`flex flex-col items-center gap-0.5 py-1 px-3 rounded-xl transition-colors ${
             currentPath.startsWith('/perfil') ? 'text-[#009344] font-bold' : 'text-[#5F6368]'
@@ -174,7 +174,13 @@ export const Navbar: React.FC<NavbarProps> = ({ currentPath, onNavigate }) => {
         >
           <UserIcon className="w-6 h-6" />
           <span className="text-[12px] font-semibold">Perfil</span>
-        </button>
+        </button> : <button
+          onClick={() => onNavigate('/login')}
+          className="flex flex-col items-center gap-0.5 py-1 px-3 rounded-xl text-[#009344] font-bold"
+        >
+          <UserIcon className="w-6 h-6" />
+          <span className="text-[12px] font-semibold">Entrar</span>
+        </button>}
       </nav>
     </>
   );

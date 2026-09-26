@@ -107,7 +107,7 @@ export default function App() {
       return <CreateMarket onNavigate={navigate} />;
     }
 
-    if ((path === '/portfolio' || path.startsWith('/perfil/')) && !session) { navigate('/login'); return null; }
+    if (path === '/portfolio' && !session) { navigate('/login'); return null; }
 
     if (path === '/portfolio') {
       return <Portfolio onNavigate={navigate} />;

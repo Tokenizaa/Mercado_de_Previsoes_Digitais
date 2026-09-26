@@ -1,104 +1,59 @@
 # Mercado de Previsões Digitais
 
-Plataforma brasileira de mercados de previsões sobre acontecimentos populares da internet, creators, entretenimento, música, esportes, eventos digitais e cultura pop.
+Plataforma brasileira de palpites sobre acontecimentos populares da internet, creators, entretenimento, música, esportes, eventos digitais e cultura pop.
 
-> **Princípio Central:** Não somos uma casa de apostas, cassino, corretora ou plataforma de criptomoedas. Somos uma plataforma de inteligência coletiva e previsões sobre eventos digitais populares com métricas **objetivamente verificáveis** e resolução auditável.
+> Princípio central: o tema pode ser popular, mas o resultado precisa ser objetivamente verificável.
 
----
+## Experiência do produto
 
-## 🧭 O que é o produto
+O usuário não precisa conhecer mercados, finanças ou apostas.
 
-O Mercado de Previsões Digitais permite que qualquer pessoa acompanhe e assuma posições sobre o que acha que vai acontecer na cultura da internet e entretenimento.
+Fluxo público: Veja → Escolha → Dar meu palpite → Acompanhar → Ver o resultado.
 
-Diferente de uma simples enquete ("Em quem você vota?"), o mercado opera sob regras de previsão coletiva:
-1. **Pergunta objetiva** com prazo definido.
-2. **Fontes verificáveis** (YouTube, Spotify, Google Trends, TikTok, rankings oficiais).
-3. **Posições em Créditos Virtuais** (sem dinheiro real, saques ou depósitos).
-4. **Resolução auditável** com registro de payload, timestamp e evidência pública.
-5. **Distribuição transparente**:
-   - **70%** para os acertadores
-   - **20%** para o criador do mercado
-   - **10%** para o custo operacional da plataforma
+Documentos canônicos:
 
----
+- docs/FRONTEND-CONSTITUTION.md
+- docs/DECISIONS.md
+- docs/PRODUCT.md
+- docs/ROADMAP.md
 
-## 🚫 O que o produto NÃO é
+## Regra atual de criação
 
-- ❌ Não é casa de apostas ou cassino (sem "odds", "apostas", "bilhetes").
-- ❌ Não utiliza dinheiro real, PIX, depósito bancário ou saque.
-- ❌ Não utiliza blockchain, criptomoedas, NFTs ou carteiras Web3.
-- ❌ Não é corretora financeira ou AMM de especulação monetária.
-- ❌ Não aceita eventos sem regra objetiva ou fonte pública verificável.
+Somente administradores criam e publicam palpites.
 
----
+Usuários comuns podem descobrir, participar, acompanhar, compartilhar e consultar resultados.
 
-## 🏗️ Arquitetura do Sistema
+## Créditos
 
-```text
-GitHub
-├── README.md
-├── docs/
-│   ├── PRODUCT.md          # Visão de produto e posicionamento
-│   ├── MARKET-MODEL.md     # 4 tipos de mercados (Resultado, Ranking, Métrica, Limiar)
-│   ├── DATA-SOURCES.md     # Catálogo de fontes, APIs e matriz de automação
-│   ├── RESOLUTION.md       # Regras do motor de resolução e registro de evidência
-│   ├── ECONOMICS.md        # Economia virtual de Créditos e distribuição 70/20/10
-│   └── ROADMAP.md          # Fases de expansão
-│
-├── src/                    # Frontend React + TypeScript + Vite + Tailwind CSS
-├── worker/                 # Cloudflare Worker API (Hono / Fetch standard)
-│   ├── src/
-│   │   ├── adapters/       # Adapters para YouTube, Spotify, TikTok, Meta, etc.
-│   │   ├── engine.ts       # Motor econômico e de resolução
-│   │   └── index.ts        # Endpoints da API REST
-│   └── wrangler.toml
-│
-└── supabase/
-    └── migrations/         # DDL PostgreSQL + RLS + Dados semente
-```
+O MVP utiliza somente Créditos virtuais.
 
----
+- saldo inicial de demonstração: 10.000 Créditos;
+- sem dinheiro real;
+- sem depósito ou saque;
+- sem PIX;
+- sem blockchain;
+- sem criptomoedas.
 
-## 🚀 Como Executar Localmente
+## Resolução
 
-### 1. Pré-requisitos
-- Node.js 18+ instalado
-- npm ou pnpm
+Todo palpite publicado precisa ter pergunta objetiva, prazo, regra clara, fonte verificável, forma de conferência e evidência registrada.
 
-### 2. Instalação e Execução
-```bash
-# Instalar dependências
-npm install
+## Arquitetura
 
-# Iniciar servidor de desenvolvimento (Vite)
-npm run dev
-```
+Frontend React + Vite → Cloudflare Worker → Supabase PostgreSQL.
 
-Acesse em `http://localhost:3000` (ou na URL do AI Studio).
+O Supabase é a fonte de verdade dos dados persistentes.
 
-### 3. Executando o Cloudflare Worker (opcional / produção)
-```bash
-cd worker
-npm install
-npm run dev    # Executa wrangler dev
-```
+## Documentação
 
----
+docs/DECISIONS.md registra decisões permanentes.
+docs/FRONTEND-CONSTITUTION.md define a experiência pública.
+docs/PRODUCT.md define o produto.
+docs/ROADMAP.md define as fases.
+Os demais documentos detalham modelo, fontes, resolução e economia.
 
-## 📊 Estado Atual do MVP
+## Desenvolvimento por fases
 
-- ✅ **4 Tipos de Mercado Implementados**:
-  - `RESULTADO` (ex: Luta de exibição de influenciadores, premiação)
-  - `RANKING` (ex: #1 no Spotify Top Brasil semanal)
-  - `METRICA` (ex: Contagem exata de inscritos ou visualizações em janela de 48h)
-  - `LIMIAR` (ex: Vídeo ultrapassará 10 milhões de views até domingo)
-- ✅ **Catálogo de Fontes Verificáveis**:
-  - YouTube Data API (Automatizável)
-  - Spotify Web API (Automatizável)
-  - Google Trends (Automatizável)
-  - TikTok Research / Creator API (Elegível)
-  - Meta Graph / Instagram (Elegível)
-  - Fontes Oficiais de Eventos (Semi-automático / Auditável)
-- ✅ **Economia Virtual**: 10.000 Créditos iniciais de demonstração, compra de posições, venda antecipada, e distribuição 70% / 20% / 10%.
-- ✅ **Auditoria Completa**: Visualizador de evidências, logs de resolução com payload e status transparente.
-- ✅ **Console Administrativo DEMO**: Ferramenta de teste para simular encerramento e resolução automática com um clique.
+Cada fase deve ser definida, implementada, validada, documentada e registrada em commit no GitHub.
+
+O GitHub é a fonte de verdade do projeto.

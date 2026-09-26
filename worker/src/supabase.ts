@@ -841,7 +841,7 @@ export async function getPortfolioFromSupabase(
 export async function getProfileByUsernameFromSupabase(supabase: SupabaseClient, username: string): Promise<PredictionProfile | null> {
   const { data, error } = await supabase.from('prediction_profiles').select('*').ilike('username', username).maybeSingle();
   if (error || !data) return null;
-  return data as PredictionProfile;
+  return { ...data, name: data.display_name } as PredictionProfile;
 }
 
 export async function updateOwnProfileInSupabase(
@@ -871,5 +871,5 @@ export async function updateOwnProfileInSupabase(
 
   const { data, error } = await supabase.from('prediction_profiles').update(payload).eq('id', userId).select('*').single();
   if (error || !data) return { success: false, error: error?.message || 'Não foi possível atualizar o perfil.' };
-  return { success: true, profile: data as PredictionProfile };
+  return { success: true, profile: { ...data, name: data.display_name } as PredictionProfile };
 }

@@ -157,8 +157,8 @@ export const Navbar: React.FC<NavbarProps> = ({ currentPath, onNavigate }) => {
         </div>
       </header>
 
-      {/* Barra de Navegação Inferior Fixa no Mobile (Tinder / Instagram style) */}
-      <nav className="md:hidden fixed bottom-0 left-0 right-0 z-40 bg-white border-t border-[#E5E7E9] px-3 py-2 flex items-center justify-around shadow-lg">
+      {/* Barra de Navegação Inferior Fixa no Mobile (Tinder / Instagram style com suporte a safe-area do iOS) */}
+      <nav className="md:hidden fixed bottom-0 left-0 right-0 z-40 bg-white border-t border-[#E5E7E9] px-3 pt-2 pb-[max(0.5rem,env(safe-area-inset-bottom))] flex items-center justify-around shadow-lg">
         <button
           onClick={() => onNavigate('/')}
           className={`flex flex-col items-center gap-0.5 py-1 px-3 rounded-xl transition-colors ${

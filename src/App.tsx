@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Navbar } from './components/Navbar';
 import { Footer } from './components/Footer';
+import { PWAInstallBanner } from './components/PWAInstallBanner';
 import { Home } from './pages/Home';
 import { MarketDiscovery } from './pages/MarketDiscovery';
 import { MarketDetail } from './pages/MarketDetail';
@@ -89,12 +90,13 @@ export default function App() {
   };
 
   return (
-    <div className="min-h-screen flex flex-col bg-neutral-50 text-neutral-900 font-sans selection:bg-neutral-900 selection:text-white">
+    <div className="min-h-screen flex flex-col bg-[#F7F8F7] text-[#202124] font-sans selection:bg-[#009344] selection:text-white pb-20 md:pb-0">
       <Navbar currentPath={currentPath} onNavigate={navigate} />
       <main className="flex-1">
         {renderRoute()}
       </main>
       <Footer onNavigate={navigate} />
+      <PWAInstallBanner />
     </div>
   );
 }

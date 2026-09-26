@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="100%" height="100%">
+  <defs>
+    <linearGradient id="grad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#00A84F" />
+      <stop offset="100%" stop-color="#007A38" />
+    </linearGradient>
+    <filter id="shadow" x="-10%" y="-10%" width="120%" height="120%">
+      <feDropShadow dx="0" dy="12" stdDeviation="16" flood-color="#000000" flood-opacity="0.18" />
+    </filter>
+  </defs>
+  
+  <!-- Fundo com cantos arredondados -->
+  <rect x="28" y="28" width="456" height="456" rx="108" fill="url(#grad)" filter="url(#shadow)" />
+  
+  <!-- Letra P Estilizada em Branco -->
+  <path d="M 160 120 L 290 120 C 350 120 380 150 380 205 C 380 260 350 290 290 290 L 225 290 L 225 392 L 160 392 Z M 225 180 L 225 232 L 285 232 C 315 232 325 220 325 206 C 325 192 315 180 285 180 Z" fill="#FFFFFF" />
+  
+  <!-- Ponto de Destaque -->
+  <circle cx="340" cy="370" r="22" fill="#FFFFFF" />
+</svg>

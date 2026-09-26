@@ -28,6 +28,9 @@ export type LedgerType =
 export interface PredictionProfile {
   id: string;
   name: string;
+  display_name?: string;
+  bio?: string;
+  role?: 'USER' | 'ADMIN' | 'MODERATOR';
   username: string;
   avatar_url?: string | null;
   credits_balance: number;

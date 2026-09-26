@@ -1,146 +1,99 @@
-import React from 'react';
-import { marketStore } from '../services/store';
-import { ArrowLeft, Coins, CheckCircle2, Sparkles } from 'lucide-react';
+import React, { useEffect, useState } from 'react';
+import { ArrowLeft, Coins, CheckCircle2, Sparkles, Pencil, Camera } from 'lucide-react';
+import { workerApi, supabase } from '../services/api';
+import { PredictionProfile } from '../../worker/src/types';
 
-interface UserProfileProps {
-  username: string;
-  onNavigate: (path: string) => void;
-}
+interface UserProfileProps { username: string; onNavigate: (path: string) => void; }
 
 export const UserProfile: React.FC<UserProfileProps> = ({ username, onNavigate }) => {
-  const users = marketStore.getUsers();
-  const user = users.find((u) => u.username === username) || users[0];
-  const userPositions = marketStore.getUserPositions(user.id);
+  const [profile, setProfile] = useState<PredictionProfile | null>(null);
+  const [positions, setPositions] = useState<any[]>([]);
+  const [sessionUserId, setSessionUserId] = useState<string | null>(null);
+  const [editing, setEditing] = useState(false);
+  const [name, setName] = useState('');
+  const [handle, setHandle] = useState('');
+  const [bio, setBio] = useState('');
+  const [avatarUrl, setAvatarUrl] = useState('');
+  const [error, setError] = useState('');
+  const [saving, setSaving] = useState(false);
 
-  const wonPositions = userPositions.filter((p) => p.status === 'WON');
-  const winRate = userPositions.length > 0
-    ? Math.round((wonPositions.length / userPositions.length) * 100)
-    : 78;
+  useEffect(() => {
+    let active = true;
+    Promise.all([workerApi.getProfile(username), workerApi.getPortfolio().catch(() => null)]).then(([p, portfolio]) => {
+      if (!active) return;
+      setProfile(p);
+      if (p) { setName(p.name || p.display_name || ''); setHandle(p.username); setBio(p.bio || ''); setAvatarUrl(p.avatar_url || ''); }
+      if (portfolio?.profile?.id) setSessionUserId(portfolio.profile.id);
+      if (portfolio) setPositions([...(portfolio.openPositions || []), ...(portfolio.closedPositions || [])]);
+    }).catch(() => setError('Não foi possível carregar o perfil.'));
+    return () => { active = false; };
+  }, [username]);
 
-  return (
-    <div className="max-w-4xl mx-auto px-4 sm:px-6 py-8 sm:py-10 space-y-8 pb-24">
-      
-      <button
-        onClick={() => onNavigate('/')}
-        className="inline-flex items-center gap-2 text-[15px] font-bold text-[#5F6368] hover:text-[#202124] transition-colors py-1"
-      >
-        <ArrowLeft className="w-5 h-5" />
-        <span>Voltar ao início</span>
-      </button>
+  const isOwn = !!profile && profile.id === sessionUserId;
+  const won = positions.filter(p => p.status === 'WON').length;
+  const rate = positions.length ? Math.round((won / positions.length) * 100) : 0;
 
-      {/* Header do Perfil */}
-      <div className="bg-white p-6 sm:p-8 rounded-3xl border border-[#E5E7E9] flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6 shadow-xs">
+  async function save() {
+    setError(''); setSaving(true);
+    try {
+      const updated = await workerApi.updateProfile({ display_name: name, username: handle, bio: bio });
+      setProfile(updated); setEditing(false);
+      if (updated.username !== username) onNavigate('/perfil/' + updated.username);
+    } catch (e: any) { setError(e.message || 'Não foi possível salvar.'); }
+    finally { setSaving(false); }
+  }
+
+  async function uploadAvatar(file: File) {
+    if (!sessionUserId || !isOwn) return;
+    if (!file.type.startsWith('image/') || file.size > 2 * 1024 * 1024) { setError('Escolha uma imagem de até 2 MB.'); return; }
+    setError('');
+    const path = `${sessionUserId}/avatar-${Date.now()}`;
+    const { error: uploadError } = await supabase.storage.from('avatars').upload(path, file, { upsert: true, contentType: file.type });
+    if (uploadError) { setError('Não foi possível enviar a foto.'); return; }
+    const { data } = supabase.storage.from('avatars').getPublicUrl(path);
+    try { const updated = await workerApi.updateProfile({ avatar_url: data.publicUrl }); setProfile(updated); setAvatarUrl(data.publicUrl); }
+    catch (e: any) { setError(e.message || 'Não foi possível salvar a foto.'); }
+  }
+
+  if (!profile) return <div className="max-w-4xl mx-auto px-4 py-12 text-center text-[#5F6368]">{error || 'Carregando perfil...'}</div>;
+
+  const displayName = profile.name || profile.display_name || profile.username;
+  return <div className="max-w-4xl mx-auto px-4 sm:px-6 py-8 sm:py-10 space-y-8 pb-24">
+    <button onClick={() => onNavigate('/')} className="inline-flex items-center gap-2 text-[15px] font-bold text-[#5F6368]"><ArrowLeft className="w-5 h-5"/>Voltar ao início</button>
+    <div className="bg-white p-6 sm:p-8 rounded-3xl border border-[#E5E7E9] shadow-xs">
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6">
         <div className="flex items-center gap-4">
-          <div className="w-18 h-18 rounded-2xl bg-[#009344] text-white flex items-center justify-center font-extrabold text-3xl shadow-sm">
-            {user.name[0]}
+          <div className="relative">
+            {avatarUrl ? <img src={avatarUrl} alt={displayName} className="w-20 h-20 rounded-2xl object-cover border border-[#E5E7E9]"/> : <div className="w-20 h-20 rounded-2xl bg-[#009344] text-white flex items-center justify-center font-extrabold text-3xl">{displayName[0]?.toUpperCase()}</div>}
+            {isOwn && <label className="absolute -bottom-2 -right-2 w-9 h-9 rounded-full bg-white border border-[#E5E7E9] flex items-center justify-center cursor-pointer"><Camera className="w-4 h-4"/><input type="file" accept="image/*" className="hidden" onChange={e => e.target.files?.[0] && uploadAvatar(e.target.files[0])}/></label>}
           </div>
           <div>
-            <h1 className="font-extrabold text-2xl sm:text-3xl text-[#202124] tracking-tight">
-              {user.name}
-            </h1>
-            <div className="text-sm font-semibold text-[#5F6368] mt-0.5">
-              @{user.username} · Participante da comunidade
-            </div>
+            <h1 className="font-extrabold text-2xl sm:text-3xl tracking-tight">{displayName}</h1>
+            <div className="text-sm font-semibold text-[#5F6368] mt-0.5">@{profile.username}</div>
+            {profile.bio && <p className="text-[16px] text-[#5F6368] mt-2 max-w-xl">{profile.bio}</p>}
           </div>
         </div>
-
-        <div className="flex items-center gap-3">
-          <button
-            onClick={() => {
-              marketStore.switchUser(user.id);
-              onNavigate('/portfolio');
-            }}
-            className="h-11 px-5 bg-[#F7F8F7] hover:bg-[#E5E7E9] text-[#202124] border border-[#E5E7E9] text-sm font-bold rounded-xl transition-colors"
-          >
-            Ver meus palpites
-          </button>
-        </div>
+        {isOwn && <button onClick={() => setEditing(!editing)} className="h-11 px-5 bg-[#F7F8F7] border border-[#E5E7E9] text-sm font-bold rounded-xl inline-flex items-center gap-2"><Pencil className="w-4 h-4"/>Editar perfil</button>}
       </div>
-
-      {/* Cartões de Indicadores */}
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-        <div className="p-5 bg-white rounded-3xl border border-[#E5E7E9] shadow-xs">
-          <div className="flex items-center justify-between text-xs font-bold text-[#5F6368] uppercase tracking-wider mb-1">
-            <span>Meus créditos</span>
-            <Coins className="w-4 h-4 text-amber-500" />
-          </div>
-          <div className="text-[28px] font-extrabold text-[#009344] tabular-nums">
-            {user.credits_balance.toLocaleString('pt-BR')}
-          </div>
-          <div className="text-xs text-[#5F6368] mt-0.5">Saldo disponível</div>
-        </div>
-
-        <div className="p-5 bg-white rounded-3xl border border-[#E5E7E9] shadow-xs">
-          <div className="flex items-center justify-between text-xs font-bold text-[#5F6368] uppercase tracking-wider mb-1">
-            <span>Acertos</span>
-            <Sparkles className="w-4 h-4 text-amber-500" />
-          </div>
-          <div className="text-[28px] font-extrabold text-[#202124] tabular-nums">
-            {wonPositions.length}
-          </div>
-          <div className="text-xs text-[#5F6368] mt-0.5">Palpites corretos</div>
-        </div>
-
-        <div className="p-5 bg-white rounded-3xl border border-[#E5E7E9] shadow-xs">
-          <div className="flex items-center justify-between text-xs font-bold text-[#5F6368] uppercase tracking-wider mb-1">
-            <span>Taxa de acertos</span>
-            <CheckCircle2 className="w-4 h-4 text-[#009344]" />
-          </div>
-          <div className="text-[28px] font-extrabold text-[#007A38] tabular-nums">
-            {winRate}%
-          </div>
-          <div className="text-xs text-[#5F6368] mt-0.5">Aproveitamento geral</div>
-        </div>
-      </div>
-
-      {/* Palpites deste usuário */}
-      <div className="space-y-4">
-        <h2 className="font-extrabold text-2xl text-[#202124]">
-          Palpites recentes ({userPositions.length})
-        </h2>
-
-        {userPositions.length > 0 ? (
-          <div className="space-y-3">
-            {userPositions.map((pos) => (
-              <div
-                key={pos.id}
-                onClick={() => pos.market_slug && onNavigate(`/mercados/${pos.market_slug}`)}
-                className="cursor-pointer p-5 bg-white rounded-2xl border border-[#E5E7E9] hover:border-[#009344] flex items-center justify-between transition-all shadow-xs"
-              >
-                <div>
-                  <div className="font-extrabold text-base text-[#202124]">
-                    {pos.market_title}
-                  </div>
-                  <div className="text-sm text-[#5F6368] mt-0.5">
-                    Escolha: <strong className="text-[#202124]">{pos.option_label}</strong> · {pos.credits_spent.toLocaleString('pt-BR')} créditos
-                  </div>
-                </div>
-
-                <div>
-                  {pos.status === 'WON' ? (
-                    <span className="text-xs font-bold text-[#007A38] bg-[#009344]/10 px-3 py-1 rounded-full">
-                      Acertou
-                    </span>
-                  ) : pos.status === 'LOST' ? (
-                    <span className="text-xs font-bold text-[#5F6368] bg-neutral-100 px-3 py-1 rounded-full">
-                      Não acertou
-                    </span>
-                  ) : (
-                    <span className="text-xs font-bold text-amber-700 bg-amber-50 px-3 py-1 rounded-full">
-                      Em andamento
-                    </span>
-                  )}
-                </div>
-              </div>
-            ))}
-          </div>
-        ) : (
-          <div className="p-8 text-center bg-white rounded-2xl border border-[#E5E7E9] text-[#5F6368] text-base">
-            Nenhum palpite registrado ainda.
-          </div>
-        )}
-      </div>
-
+      {editing && <div className="mt-6 pt-6 border-t border-[#E5E7E9] space-y-4">
+        <label className="block"><span className="block text-sm font-bold mb-2">Nome</span><input value={name} onChange={e=>setName(e.target.value)} maxLength={80} className="w-full h-12 px-4 rounded-xl border border-[#D9DDDA]"/></label>
+        <label className="block"><span className="block text-sm font-bold mb-2">@nome</span><input value={handle} onChange={e=>setHandle(e.target.value.toLowerCase())} maxLength={20} className="w-full h-12 px-4 rounded-xl border border-[#D9DDDA]"/></label>
+        <label className="block"><span className="block text-sm font-bold mb-2">Bio</span><textarea value={bio} onChange={e=>setBio(e.target.value)} maxLength={280} rows={3} className="w-full px-4 py-3 rounded-xl border border-[#D9DDDA] resize-none"/></label>
+        {error && <div className="p-3 rounded-xl bg-red-50 border border-red-200 text-red-800 text-sm font-semibold">{error}</div>}
+        <button disabled={saving} onClick={save} className="h-12 px-6 rounded-xl bg-[#009344] text-white font-extrabold">{saving ? 'Salvando...' : 'Salvar alterações'}</button>
+      </div>}
     </div>
-  );
+
+    {error && !editing && <div className="p-3 rounded-xl bg-red-50 border border-red-200 text-red-800 text-sm font-semibold">{error}</div>}
+
+    <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+      <div className="p-5 bg-white rounded-3xl border border-[#E5E7E9]"><div className="text-xs font-bold text-[#5F6368] uppercase mb-1">Meus créditos</div><div className="text-[28px] font-extrabold text-[#009344] tabular-nums">{profile.credits_balance.toLocaleString('pt-BR')}</div></div>
+      <div className="p-5 bg-white rounded-3xl border border-[#E5E7E9]"><div className="flex items-center gap-2 text-xs font-bold text-[#5F6368] uppercase mb-1">Acertos <Sparkles className="w-4 h-4"/></div><div className="text-[28px] font-extrabold">{won}</div></div>
+      <div className="p-5 bg-white rounded-3xl border border-[#E5E7E9]"><div className="flex items-center gap-2 text-xs font-bold text-[#5F6368] uppercase mb-1">Taxa de acertos <CheckCircle2 className="w-4 h-4 text-[#009344]"/></div><div className="text-[28px] font-extrabold text-[#007A38]">{rate}%</div></div>
+    </div>
+
+    {isOwn && <div className="p-5 bg-white rounded-3xl border border-[#E5E7E9]"><div className="flex items-center gap-2 text-xs font-bold text-[#5F6368] uppercase mb-1"><Coins className="w-4 h-4"/>Saldo</div><div className="font-extrabold text-[#009344]">{profile.credits_balance.toLocaleString('pt-BR')} créditos</div></div>}
+
+    <div className="space-y-4"><h2 className="font-extrabold text-2xl">Palpites recentes ({positions.length})</h2>{positions.length ? <div className="space-y-3">{positions.map(pos => <div key={pos.id} onClick={() => pos.market_slug && onNavigate('/mercados/'+pos.market_slug)} className="cursor-pointer p-5 bg-white rounded-2xl border border-[#E5E7E9] flex items-center justify-between"><div><div className="font-extrabold">{pos.market_title}</div><div className="text-sm text-[#5F6368] mt-1">Escolha: <strong className="text-[#202124]">{pos.option_label}</strong></div></div><span className="text-xs font-bold">{pos.status === 'WON' ? 'Acertou' : pos.status === 'LOST' ? 'Não acertou' : 'Em andamento'}</span></div>)}</div> : <div className="p-8 text-center bg-white rounded-2xl border border-[#E5E7E9] text-[#5F6368]">Nenhum palpite registrado ainda.</div>}</div>
+  </div>;
 };

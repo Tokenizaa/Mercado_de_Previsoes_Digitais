@@ -98,3 +98,11 @@ Creators selecionados, criação pela comunidade, moderação e planos de criaç
 Uma fase só é concluída quando implementação, testes/validação, documentação e commit estiverem concluídos.
 
 Não avançar de fase carregando pendências silenciosas.
+
+
+### Etapa 4 — Perfil real
+- Status: ✅ concluída
+- Perfil público carregado do `prediction_profiles` via Worker.
+- Usuário autenticado pode editar nome, @username, bio e avatar.
+- Avatar usa Supabase Storage `avatars` com limite de 2 MB.
+- Perfil público continua acessível sem login.

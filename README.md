@@ -57,3 +57,8 @@ Os demais documentos detalham modelo, fontes, resolução e economia.
 Cada fase deve ser definida, implementada, validada, documentada e registrada em commit no GitHub.
 
 O GitHub é a fonte de verdade do projeto.
+
+
+## Fase 5.1 — Identidade
+
+Cadastro, login, logout, recuperação de senha, sessão persistente via Supabase Auth e proteção das áreas autenticadas foram implementados. Perfis são criados automaticamente pelo trigger canônico do Supabase.

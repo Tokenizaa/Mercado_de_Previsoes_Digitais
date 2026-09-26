@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { marketStore } from '../services/store';
+import { supabase } from '../services/api';
 import { User } from '../types/market';
 import { Coins, UserCheck, ShieldCheck, Home, Compass, BookmarkCheck, User as UserIcon } from 'lucide-react';
 
@@ -12,6 +13,13 @@ export const Navbar: React.FC<NavbarProps> = ({ currentPath, onNavigate }) => {
   const [user, setUser] = useState<User>(marketStore.getCurrentUser());
   const [users, setUsers] = useState<User[]>(marketStore.getUsers());
   const [showUserDropdown, setShowUserDropdown] = useState(false);
+  const [session, setSession] = useState<any>(null);
+
+  useEffect(() => {
+    supabase.auth.getSession().then(({data}) => setSession(data.session));
+    const {data} = supabase.auth.onAuthStateChange((_event,next) => setSession(next));
+    return () => data.subscription.unsubscribe();
+  }, []);
 
   useEffect(() => {
     const unsubscribe = marketStore.subscribe(() => {
@@ -25,7 +33,7 @@ export const Navbar: React.FC<NavbarProps> = ({ currentPath, onNavigate }) => {
     { label: 'Início', path: '/' },
     { label: 'Explorar', path: '/mercados' },
     { label: 'Meus palpites', path: '/portfolio' },
-    { label: 'Perfil', path: `/perfil/${user.username}` },
+    ...(session ? [{ label: 'Perfil', path: `/perfil/${user.username}` }] : []),
   ];
 
   return (
@@ -79,8 +87,10 @@ export const Navbar: React.FC<NavbarProps> = ({ currentPath, onNavigate }) => {
           {/* Seus Créditos & Perfil */}
           <div className="flex items-center gap-3">
             
+            {!session && <button onClick={() => onNavigate('/login')} className="px-4 py-2 rounded-xl bg-[#009344] text-white font-extrabold">Entrar</button>}
+
             {/* Saldo de Créditos Amigável */}
-            <div className="relative">
+            {session && <div className="relative">
               <button
                 onClick={() => setShowUserDropdown(!showUserDropdown)}
                 className="flex items-center gap-2 px-3.5 py-2 bg-[#F7F8F7] hover:bg-[#E5E7E9] border border-[#E5E7E9] rounded-xl text-[#202124] font-bold text-sm transition-all"
@@ -150,7 +160,7 @@ export const Navbar: React.FC<NavbarProps> = ({ currentPath, onNavigate }) => {
                   </div>
                 </div>
               )}
-            </div>
+            </div>}
 
           </div>
 

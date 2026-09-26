@@ -19,8 +19,12 @@ export interface User {
   name: string;
   username: string;
   avatar_url?: string;
+  bio?: string;
+  role?: 'USER' | 'ADMIN' | 'MODERATOR';
+  email?: string;
   credits_balance: number;
   created_at: string;
+  updated_at?: string;
 }
 
 export interface MarketOption {
@@ -28,8 +32,8 @@ export interface MarketOption {
   market_id: string;
   label: string;
   slug: string;
-  current_probability: number; // 0 a 100%
-  total_position: number;      // Créditos alocados nesta opção
+  current_probability: number;
+  total_position: number;
   result?: 'WINNER' | 'LOSER' | 'VOID' | null;
   created_at?: string;
 }
@@ -116,6 +120,6 @@ export interface SourceProvider {
 export interface CreatorPlan {
   id: 'pequeno' | 'medio' | 'grande' | 'maior';
   name: string;
-  capacity: number; // contratos disponíveis
+  capacity: number;
   description: string;
 }

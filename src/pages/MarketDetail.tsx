@@ -85,12 +85,12 @@ export const MarketDetail: React.FC<MarketDetailProps> = ({ slug, onNavigate }) 
   const simulatedWinnersPool = Math.floor(simulatedPool * 0.70);
   const estWinningPayout = Math.floor(creditsInput * (100 / (selectedOption?.current_probability || 50)));
 
-  const handleTrade = (e: React.FormEvent) => {
+  const handleTrade = async (e: React.FormEvent) => {
     e.preventDefault();
     setFeedback(null);
 
     if (tradeMode === 'buy') {
-      const res = marketStore.buyPosition(market.id, selectedOptionId, Number(creditsInput));
+      const res = await marketStore.buyPosition(market.id, selectedOptionId, Number(creditsInput));
       if (res.success) {
         setFeedback({
           type: 'success',
@@ -104,7 +104,7 @@ export const MarketDetail: React.FC<MarketDetailProps> = ({ slug, onNavigate }) 
         setFeedback({ type: 'error', message: 'Você não tem posição ativa aberta nesta opção para vender.' });
         return;
       }
-      const res = marketStore.sellPosition(activePosition.id);
+      const res = await marketStore.sellPosition(activePosition.id);
       if (res.success) {
         setFeedback({ type: 'success', message: 'Posição liquidada com sucesso com retorno em Créditos!' });
       } else {

@@ -1,67 +1,53 @@
 # Motor de Resolução & Registro de Evidências
 
-O processo de resolução é o coração da confiança da plataforma.
+O processo de resolução é o núcleo de confiança do **Mercado de Previsões Digitais**.
 
 ---
 
-## 1. Princípios de Resolução
-1. **Determinismo**: Dada a mesma evidência de entrada, a resolução deve produzir exatamente o mesmo resultado vencedor.
-2. **Imutabilidade**: Uma vez gravado o log de resolução (`market_resolution_logs`) e distribuído o pool, a decisão não é alterada sem auditoria transparente.
-3. **Auditabilidade Pública**: Qualquer usuário pode inspecionar o payload bruto coletado da fonte, a URL consultada e a data/hora exata da captura.
+## 1. Regra Contra Decisões Arbitrárias
+**NUNCA aceitamos simplesmente \`winner = req.body.winner\` como critério de resolução.**
+
+A resolução passa obrigatoriamente por:
+1. Localização do mercado em `prediction_markets`;
+2. Consulta ao adapter do provedor em `worker/src/adapters`;
+3. Registro de auditoria em `prediction_resolution_logs` com:
+   - `source_url`
+   - `source_payload` (JSON bruto capturado)
+   - `observed_result`
+   - `evidence`
+   - `is_demo` (booleano explícito)
+4. Transição de estado para `DISTRIBUTED`;
+5. Atualização atômica das posições em `prediction_positions` (`WON` / `LOST`);
+6. Lançamento oficial dos créditos no `prediction_credit_ledger` e atualização dos saldos em `prediction_profiles`.
 
 ---
 
-## 2. Fluxo Passo a Passo
+## 2. Fluxos Financeiros no Supabase
 
-```text
-1. Encerramento do Mercado (status = CLOSED)
-   Nenhuma nova posição ou venda pode ser realizada após close_at.
+### Fluxo de Compra (`POST /api/markets/:id/positions`):
+1. Autentica usuário através do token Supabase;
+2. Consulta saldo oficial em `prediction_profiles.credits_balance`;
+3. Valida se o mercado está em `status = 'OPEN'`;
+4. Valida se a opção existe e pertence ao mercado;
+5. Debita os créditos de `prediction_profiles`;
+6. Registra/atualiza registro em `prediction_positions`;
+7. Cria lançamento imutável em `prediction_credit_ledger` com tipo `BUY`;
+8. Registra evento em `prediction_activity`;
+9. Recalcula probabilidades do mercado com base no novo pool.
 
-2. Gatilho de Verificação (Worker Cron ou Endpoint /api/markets/:id/resolve)
-   O Worker consulta o adapter correspondente (ex: YouTube Adapter com video_id).
+### Fluxo de Venda (`POST /api/markets/:id/sell`):
+1. Autentica usuário;
+2. Localiza posição em `prediction_positions` e valida propriedade;
+3. Valida se mercado está `OPEN`;
+4. Calcula retorno de liquidação com base nas unidades e probabilidade atual (spread de saída de 5%);
+5. Atualiza unidades da posição ou marca como `CLOSED`;
+6. Credita saldo em `prediction_profiles`;
+7. Registra movimentação em `prediction_credit_ledger` com tipo `SELL`;
+8. Registra evento em `prediction_activity`.
 
-3. Coleta e Normalização de Dados
-   O adapter extrai a métrica especificada na resolution_rule.
-
-4. Comparação Lógica
-   - RESULTADO: Identifica se o vencedor declarado confere com uma das opções.
-   - LIMIAR: Avalia (métrica_observada >= limiar_definido).
-   - METRICA: Encaixa o valor numérico na faixa correspondente.
-   - RANKING: Identifica o elemento na posição #1.
-
-5. Registro de Evidência (market_resolution_logs)
-   Armazena:
-   - source_url
-   - source_payload (JSON bruto)
-   - observed_result
-   - verified_at (timestamp)
-   - status: SUCCESS / FAILED
-
-6. Execução da Distribuição Virtual (status = DISTRIBUTED)
-   Invoca o módulo de cálculo econômico:
-   - 70% distribuídos proporcionalmente aos donos de unidades da opção vencedora.
-   - 20% creditados ao saldo do criador do mercado.
-   - 10% retidos como custo operacional da plataforma.
-```
-
----
-
-## 3. Estrutura do Registro de Evidência
-
-```json
-{
-  "market_id": "uuid-do-mercado",
-  "source_url": "https://www.youtube.com/watch?v=EXAMPLE_ID",
-  "source_payload": {
-    "provider": "youtube",
-    "resource_id": "EXAMPLE_ID",
-    "metric": "viewCount",
-    "value": 12458900,
-    "timestamp_iso": "2026-09-26T21:00:00Z"
-  },
-  "observed_result": "Sim (12.458.900 views >= 10.000.000)",
-  "verified_at": "2026-09-26T21:00:05Z",
-  "status": "VERIFIED",
-  "evidence": "API response payload confirmed via YouTube Data v3"
-}
-```
+### Fluxo de Resolução & Payout (`POST /api/markets/:id/resolve`):
+1. Inspeciona a fonte oficial via adapter;
+2. Demarca opção vencedora (`WINNER`) e perdedoras (`LOSER`);
+3. Aloca **70% do pool** proporcionalmente às unidades dos acertadores com lançamentos `WINNINGS` no ledger;
+4. Aloca **20% do pool** ao criador com lançamento `CREATOR_REWARD` no ledger;
+5. Retém **10% do pool** como custo operacional com lançamento `PLATFORM_COST` no ledger.

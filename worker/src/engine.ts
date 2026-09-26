@@ -140,6 +140,7 @@ export async function executeMarketResolution(
     verified_at: inspection.captured_at,
     status: 'SUCCESS',
     evidence: `Consulta via ${adapter.providerName} [${inspection.is_demo ? 'MODO DEMO' : 'PRODUÇÃO'}]. Identificador: ${market.source_identifier}`,
+    is_demo: inspection.is_demo,
     created_at: new Date().toISOString(),
   };
 

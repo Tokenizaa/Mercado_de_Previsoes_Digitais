@@ -14,16 +14,43 @@ export type Category =
   | 'musica'
   | 'entretenimento';
 
-export interface User {
+export type LedgerType =
+  | 'INITIAL_BALANCE'
+  | 'BUY'
+  | 'SELL'
+  | 'WINNINGS'
+  | 'CREATOR_REWARD'
+  | 'PLATFORM_COST'
+  | 'REFUND'
+  | 'ADJUSTMENT';
+
+// Canonical schema: prediction_profiles
+export interface PredictionProfile {
   id: string;
   name: string;
   username: string;
-  avatar_url?: string;
+  avatar_url?: string | null;
   credits_balance: number;
+  created_at: string;
+  updated_at?: string;
+}
+
+// Canonical schema: prediction_source_providers
+export interface PredictionSourceProvider {
+  id: string;
+  name: string;
+  slug: string;
+  category: string;
+  source_type: 'api' | 'web' | 'oficial';
+  api_available: boolean;
+  automated_resolution_supported: boolean;
+  active: boolean;
+  description?: string | null;
   created_at: string;
 }
 
-export interface MarketOption {
+// Canonical schema: prediction_market_options
+export interface PredictionMarketOption {
   id: string;
   market_id: string;
   label: string;
@@ -34,7 +61,8 @@ export interface MarketOption {
   created_at: string;
 }
 
-export interface Market {
+// Canonical schema: prediction_markets
+export interface PredictionMarket {
   id: string;
   slug: string;
   title: string;
@@ -43,45 +71,63 @@ export interface Market {
   market_type: MarketType;
   status: MarketStatus;
   creator_id: string;
+  creator?: {
+    id: string;
+    name: string;
+    username: string;
+    avatar_url?: string | null;
+  };
   close_at: string;
-  resolution_at?: string;
+  resolution_at?: string | null;
   resolution_rule: string;
   source_type: string;
+  source_provider_id?: string | null;
   source_url: string;
   source_identifier: string;
-  image_url?: string;
+  image_url?: string | null;
+  total_pool: number;
+  featured?: boolean;
   created_at: string;
   updated_at: string;
-  options?: MarketOption[];
-  total_pool?: number;
+  options?: PredictionMarketOption[];
+  source_provider?: PredictionSourceProvider | null;
+  activity?: PredictionActivity[];
+  resolution_log?: PredictionResolutionLog | null;
 }
 
-export interface Position {
+// Canonical schema: prediction_positions
+export interface PredictionPosition {
   id: string;
   user_id: string;
   market_id: string;
+  market_title?: string;
+  market_slug?: string;
   option_id: string;
+  option_label?: string;
   credits_spent: number;
   units: number;
   average_price: number;
   status: 'OPEN' | 'CLOSED' | 'WON' | 'LOST' | 'REFUNDED';
+  credits_payout?: number;
   created_at: string;
   updated_at: string;
 }
 
-export interface MarketActivity {
+// Canonical schema: prediction_activity
+export interface PredictionActivity {
   id: string;
   market_id: string;
   user_id: string;
-  userName?: string;
+  user_name?: string;
   type: 'BUY' | 'SELL' | 'RESOLVE' | 'DISTRIBUTE';
-  option_id?: string;
-  optionLabel?: string;
+  option_id?: string | null;
+  option_label?: string | null;
   credits: number;
   created_at: string;
 }
 
-export interface MarketResolutionLog {
+// Canonical schema: prediction_resolution_logs
+export interface PredictionResolutionLog {
   id: string;
   market_id: string;
   source_url: string;
@@ -90,20 +136,42 @@ export interface MarketResolutionLog {
   verified_at: string;
   status: 'SUCCESS' | 'PENDING' | 'FAILED' | 'DISPUTED';
   evidence: string;
+  is_demo: boolean;
   created_at: string;
 }
 
-export interface SourceProvider {
+// Canonical schema: prediction_creator_markets
+export interface PredictionCreatorMarket {
   id: string;
-  name: string;
-  slug: string;
-  category: string;
-  source_type: 'api' | 'web' | 'oficial';
-  api_available: boolean;
-  automated_resolution_supported: boolean;
-  active: boolean;
+  market_id: string;
+  creator_id: string;
+  creation_plan: 'pequeno' | 'medio' | 'grande' | 'maior';
+  contract_capacity: number;
+  creator_reward: number;
   created_at: string;
 }
+
+// Canonical schema: prediction_credit_ledger
+export interface PredictionCreditLedger {
+  id: string;
+  user_id: string;
+  type: LedgerType;
+  amount: number;
+  balance_after: number;
+  market_id?: string | null;
+  position_id?: string | null;
+  description?: string | null;
+  created_at: string;
+}
+
+// Legacy aliases for backward-compatibility during phase transition
+export type User = PredictionProfile;
+export type Market = PredictionMarket;
+export type MarketOption = PredictionMarketOption;
+export type Position = PredictionPosition;
+export type MarketActivity = PredictionActivity;
+export type MarketResolutionLog = PredictionResolutionLog;
+export type SourceProvider = PredictionSourceProvider;
 
 export interface EconomicDistribution {
   total_pool: number;

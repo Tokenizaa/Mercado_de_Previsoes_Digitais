@@ -48,7 +48,7 @@ export const CreateMarket: React.FC<CreateMarketProps> = ({ onNavigate }) => {
     setOptions(updated);
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
 
@@ -67,7 +67,7 @@ export const CreateMarket: React.FC<CreateMarketProps> = ({ onNavigate }) => {
       return;
     }
 
-    const res = marketStore.createMarket({
+    const res = await marketStore.createMarket({
       title,
       description,
       category,

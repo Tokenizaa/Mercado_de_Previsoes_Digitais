@@ -49,37 +49,42 @@ Nenhum mercado é publicado sem:
     },
     {
       id: 'MARKET-MODEL.md',
-      title: '02. Tipos de Mercados',
-      summary: 'Estrutura dos 4 tipos: RESULTADO, LIMIAR, METRICA e RANKING.',
-      content: `# Modelo de Mercados & Tipos de Contrato
+      title: '02. Modelo Canônico (prediction_*)',
+      summary: 'Schema no Supabase (prediction_*), 4 tipos e ciclo de vida.',
+      content: `# Modelo de Mercados & Schema Canônico
 
-A plataforma suporta quatro tipos fundamentais de mercado. Cada tipo atende a uma natureza diferente de evento digital.
+## 1. Arquitetura do Produto
+\`\`\`text
+Frontend (React + Vite)
+      ↓
+Cloudflare Worker (API /api/*)
+      ↓
+Supabase PostgreSQL (project_ref = qyjoegombkgkgbvcjvhu)
+\`\`\`
 
----
-
-## 1. Tipo: RESULTADO (Discreto / Categórico)
-- **Definição**: Pergunta fechada com duas ou mais opções mutuamente exclusivas onde apenas uma será a vencedora.
-- **Exemplo**: *"Quem vence o combate principal do Fight Music Show 11?"*
-- **Métrica**: Decisão oficial anunciada pela organização ou súmula esportiva pública.
-
----
-
-## 2. Tipo: LIMIAR (Booleano / Acima ou Abaixo)
-- **Definição**: Pergunta de ultrapassagem de uma marca numérica antes de uma data e hora limite.
-- **Exemplo**: *"O novo clipe de Anitta ultrapassará 15 milhões de visualizações no YouTube em 72h?"*
-- **Métrica**: Contagem de visualizações retornada pela API pública do YouTube (\`statistics.viewCount\`).
+**Supabase é a fonte de verdade.**
+Namespace oficial: **prediction_***
 
 ---
 
-## 3. Tipo: METRICA (Faixas Quantitativas)
-- **Definição**: Estimativa do valor numérico final alcançado em uma janela estipulada, dividido em faixas contínuas.
-- **Exemplo**: *"Qual será o pico de audiência simultânea na transmissão de CazéTV no jogo de abertura?"*
+## 2. Tabelas Canônicas:
+- \`prediction_profiles\`: Perfis e saldos de Créditos.
+- \`prediction_source_providers\`: Catálogo de fontes auditáveis.
+- \`prediction_markets\`: Mercados públicos.
+- \`prediction_market_options\`: Opções e probabilidades.
+- \`prediction_positions\`: Posições em aberto e liquidadas.
+- \`prediction_activity\`: Feed de atividades em tempo real.
+- \`prediction_resolution_logs\`: Evidências com payloads brutos.
+- \`prediction_creator_markets\`: Capacidade dos planos de criação.
+- \`prediction_credit_ledger\`: Livro-razão financeiro oficial.
 
 ---
 
-## 4. Tipo: RANKING (Posição Relativa em Tabela)
-- **Definição**: Previsão de quem ocupará o topo ou uma posição determinada em uma parada oficial de métricas.
-- **Exemplo**: *"Qual faixa ocupará a 1ª posição no Spotify Top 50 Brasil na atualização de sexta-feira?"*`,
+## 3. Tipos de Mercado:
+- **RESULTADO**: Pergunta fechada com duas ou mais opções exclusivas.
+- **LIMIAR**: Marca numérica em janela de tempo (Sim/Não).
+- **METRICA**: Faixas numéricas de métricas.
+- **RANKING**: Posição relativa em paradas oficiais.`,
     },
     {
       id: 'DATA-SOURCES.md',

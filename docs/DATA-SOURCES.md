@@ -1,62 +1,30 @@
-# Catálogo de Fontes Verificáveis & Auditabilidade
+# Catálogo de Fontes Verificáveis & Estado dos Adapters
 
-Para manter a integridade do sistema, cada mercado precisa estar vinculado a um provedor registrado no catálogo de fontes.
-
----
-
-## 1. Classificação das Fontes
-
-Cada fonte passa por 4 estados de maturidade técnica:
-
-| Estado | Significado |
-| :--- | :--- |
-| **DISPONÍVEL** | A fonte existe publicamente e possui dados acessíveis para verificação humana. |
-| **ELEGÍVEL** | A fonte possui estrutura e formatos padronizados (ex: página HTML estável, RSS ou endpoint público). |
-| **RESOLVÍVEL** | O Worker possui parser ou adapter configurado para extrair a métrica com precisão determinística. |
-| **AUTOMATIZÁVEL** | A fonte possui API oficial ou webhook com consulta agendada via Cloudflare Cron Triggers sem intervenção manual. |
+## 1. Princípio Central
+Nenhum mercado é elegível para publicação sem possuir:
+- Fonte pública objetiva (`source_url`);
+- Identificador da métrica (`source_identifier`);
+- Regra determinística de resolução (`resolution_rule`).
 
 ---
 
-## 2. Catálogo Inicial de Fontes (MVP)
+## 2. Estado Atual dos Adapters (Cloudflare Worker)
 
-### A. YouTube (YouTube Data API v3)
-- **Slug**: `youtube`
-- **Categoria**: Vídeo & Streaming
-- **Métricas Suportadas**:
-  - `statistics.viewCount` (Contagem de visualizações de vídeo específico)
-  - `statistics.subscriberCount` (Contagem pública de inscritos)
-  - `statistics.likeCount` (Contagem de curtidas)
-- **Status de Automação**: `AUTOMATIZÁVEL` (Adapter preparado no Worker).
-- **Formato de Evidência**: JSON com `videoId`, `viewCount`, `collectedAt` e hash SHA-256.
+Os adaptadores residem em `worker/src/adapters/index.ts` e são invocados pelo Worker para resolução.
 
-### B. Spotify (Spotify Web API / Charts)
-- **Slug**: `spotify`
-- **Categoria**: Música
-- **Métricas Suportadas**:
-  - Posição `#1` a `#50` no Daily / Weekly Top Brasil
-  - Total diário de streams de uma faixa
-- **Status de Automação**: `AUTOMATIZÁVEL`.
-- **Formato de Evidência**: JSON com `chartDate`, `trackId`, `trackName`, `position`, `streamCount`.
+| Provedor | Categoria | Tipo | `api_available` | `automated_resolution_supported` | Estado Atual no Worker |
+| :--- | :--- | :--- | :--- | :--- | :--- |
+| **YouTube Data API v3** | Vídeo / Streaming | API | Sim | Sim | Implementado com payload auditável e snapshot de viewCount (`is_demo = true`). |
+| **Spotify Web Charts** | Música | API | Sim | Sim | Implementado com aferição de posição #1 no Top Brasil (`is_demo = true`). |
+| **Google Trends BR** | Pesquisa | Web | Sim | Não | Implementado com normalização de índice relativo (0-100) (`is_demo = true`). |
+| **TikTok Creator Portal** | Vídeo Curto | API | Sim | Não | Estruturado para contagem de vídeos por áudio/tag (`is_demo = true`). |
+| **Instagram Graph API** | Social | API | Sim | Não | Estruturado para leitura de seguidores/interações públicas (`is_demo = true`). |
+| **Súmulas Oficiais de Eventos** | Esportes / Lutas | Oficial | Não | Não | Estruturado para súmulas esportivas e comunicados oficiais (`is_demo = true`). |
 
-### C. Google Trends
-- **Slug**: `google-trends`
-- **Categoria**: Cultura & Pesquisa
-- **Métricas Suportadas**:
-  - Volume comparativo de interesse relativo (0–100) em janela delimitada de 7 dias no território Brasil (`geo=BR`).
-- **Status de Automação**: `RESOLVÍVEL`.
+---
 
-### D. TikTok (TikTok Creator / Research API)
-- **Slug**: `tiktok`
-- **Categoria**: Vídeo Curto
-- **Métricas Suportadas**:
-  - Visualizações e contagem de vídeos com determinado áudio oficial.
-- **Status de Automação**: `ELEGÍVEL` (DEMO adapter com estrutura para chave de API).
-
-### E. Fontes Oficiais de Eventos (Súmulas e Portais Oficiais)
-- **Slug**: `official-events`
-- **Categoria**: Esportes & Festivais
-- **Exemplos**:
-  - Organização do Fight Music Show
-  - Academia do Prêmio Multishow / Grammy Latino
-  - Transmissões oficiais (CazéTV / SporTV / Globoplay)
-- **Status de Automação**: `RESOLVÍVEL` (Auditado com link permanente e captura de tela ou ata).
+## 3. Matriz de Maturidade Técnica
+```text
+DISPONÍVEL ──► ELEGÍVEL ──► RESOLVÍVEL ──► AUTOMATIZÁVEL
+```
+- **Limitação Conhecida**: Enquanto as chaves de produção de cada API externa (`YOUTUBE_API_KEY`, etc.) não forem injetadas no ambiente do Cloudflare Worker, o motor opera com snapshots determinísticos marcados explicitamente com a flag `is_demo = true` no log de evidência, sem inventar APIs falsas.

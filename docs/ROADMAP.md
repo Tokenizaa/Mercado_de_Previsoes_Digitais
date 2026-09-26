@@ -1,40 +1,29 @@
 # Roadmap Técnico & Evolução de Produto
 
-Este documento mapeia os passos de expansão do **Mercado de Previsões Digitais**.
+## Fase 1: Fundação & Protótipo Funcional (Concluído)
+- [x] Estrutura unificada: Frontend (React + Vite) + Cloudflare Worker.
+- [x] 4 tipos de mercados operacionais (Resultado, Limiar, Métrica, Ranking).
+- [x] Documentação arquitetural completa versionada.
 
----
+## Fase 2: Canonização Supabase & Conexão do Worker (Fase Atual)
+- [x] Migration canônica com namespace `prediction_*` versionada no GitHub (`supabase/migrations/20260926000000_canonical_prediction_schema.sql`).
+- [x] Cloudflare Worker conectado à API Supabase (`prediction_profiles`, `prediction_markets`, `prediction_positions`, `prediction_activity`, `prediction_resolution_logs`, `prediction_credit_ledger`).
+- [x] Endpoints reais implementados:
+  - `GET /api/health`
+  - `GET /api/markets`
+  - `GET /api/markets/:slug`
+  - `GET /api/sources`
+  - `GET /api/activity`
+  - `GET /api/portfolio`
+  - `POST /api/markets`
+  - `POST /api/markets/:id/positions`
+  - `POST /api/markets/:id/sell`
+  - `POST /api/markets/:id/resolve`
+- [x] Garantia de atomicidade financeira e consistência com `prediction_credit_ledger`.
+- [x] Resolução com evidência e repúdio a vencedor arbitrário enviado pelo cliente.
+- [x] Testes de integração de fluxo ponta a ponta validados.
 
-## Fase 1: Fundação & MVP Funcional (Fase Atual)
-- [x] Estrutura unificada: Frontend (React + Vite) + Cloudflare Worker + Supabase DDL.
-- [x] Implementação dos 4 tipos de mercados: `RESULTADO`, `RANKING`, `METRICA`, `LIMIAR`.
-- [x] Economia de Créditos Virtuais (10.000 de demonstração) com distribuição 70/20/10.
-- [x] Páginas principais: Home, Descoberta, Detalhe do Mercado, Categorias, Criar, Portfolio, Ranking, Perfil e Console DEMO.
-- [x] Catálogo de fontes com flags de auditabilidade e automação.
-- [x] Motor de demonstração para resolução com evidência auditável.
-- [x] Documentação técnica completa versionada.
-
----
-
-## Fase 2: Adapters de Produção para APIs Oficiais
-- [ ] **YouTube Data API v3**:
-  - Webhook de monitoramento agendado via Cloudflare Cron Triggers.
-  - Verificação com snapshot de views e likes gravado com hash de integridade.
-- [ ] **Spotify Web API**:
-  - Scraping/API de Charts semanais oficiais nas sextas-feiras às 18h BRT.
-- [ ] **Google Trends PyTrends / SerpAPI**:
-  - Normalização de índices de busca relativos no Brasil.
-- [ ] **TikTok Research API**:
-  - Conexão para validação de reproduções de áudio.
-
----
-
-## Fase 3: Comunidade & Distribuição Social
-- [ ] Compartilhamento dinâmico com cartões gráficos renderizados para Instagram Stories e WhatsApp.
-- [ ] Sistema de selos de reputação para criadores com alta taxa de acerto e mercados auditados sem contestação.
-- [ ] Notificações automáticas via Web Push quando um mercado em que o usuário tem posição for encerrado ou resolvido.
-
----
-
-## Fase 4: Governança & Resolução Descentralizada
-- [ ] Mecanismo de contestação comunitária caso a fonte oficial apresente inconsistência temporária ou queda de servidor.
-- [ ] Comitê de auditores com registro imutável de deliberação.
+## Fase 3: Adapters de Produção & Cron Triggers
+- [ ] Injeção de credenciais de produção no Cloudflare Worker (`YOUTUBE_API_KEY`, etc.).
+- [ ] Execução periódica de consultas agendadas via Cloudflare Cron Triggers para fechamento pontual de mercados.
+- [ ] Supabase Auth completo no frontend com fluxo de login e recuperação de senha.

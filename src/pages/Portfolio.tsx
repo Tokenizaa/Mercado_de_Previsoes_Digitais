@@ -28,8 +28,8 @@ export const Portfolio: React.FC<PortfolioProps> = ({ onNavigate }) => {
     .filter((p) => p.status === 'WON')
     .reduce((sum, p) => sum + (p.credits_payout || 0), 0);
 
-  const handleQuickSell = (posId: string) => {
-    const res = marketStore.sellPosition(posId);
+  const handleQuickSell = async (posId: string) => {
+    const res = await marketStore.sellPosition(posId);
     if (res.success) {
       setFeedback('Posição liquidada com sucesso! Créditos reembolsados.');
       setTimeout(() => setFeedback(null), 3500);

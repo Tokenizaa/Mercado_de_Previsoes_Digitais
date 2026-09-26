@@ -19,12 +19,15 @@ export const UserProfile: React.FC<UserProfileProps> = ({ username, onNavigate }
 
   useEffect(() => {
     let active = true;
-    Promise.all([workerApi.getProfile(username), workerApi.getPortfolio().catch(() => null)]).then(([p, portfolio]) => {
+    Promise.all([workerApi.getProfile(username), supabase.auth.getSession()]).then(async ([p, sessionResult]) => {
       if (!active) return;
       setProfile(p);
       if (p) { setName(p.name || p.display_name || ''); setHandle(p.username); setBio(p.bio || ''); setAvatarUrl(p.avatar_url || ''); }
-      if (portfolio?.profile?.id) setSessionUserId(portfolio.profile.id);
-      if (portfolio) setPositions([...(portfolio.openPositions || []), ...(portfolio.closedPositions || [])]);
+      if (sessionResult.data.session) {
+        const portfolio = await workerApi.getPortfolio().catch(() => null);
+        if (portfolio?.profile?.id) setSessionUserId(portfolio.profile.id);
+        if (portfolio) setPositions([...(portfolio.openPositions || []), ...(portfolio.closedPositions || [])]);
+      }
     }).catch(() => setError('Não foi possível carregar o perfil.'));
     return () => { active = false; };
   }, [username]);

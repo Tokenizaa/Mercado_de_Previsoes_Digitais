@@ -58,11 +58,6 @@ CREATE UNIQUE INDEX IF NOT EXISTS idx_prediction_profiles_username_lower
 ALTER TABLE public.prediction_profiles ENABLE ROW LEVEL SECURITY;
 
 DROP POLICY IF EXISTS "prediction_profiles_public_read" ON public.prediction_profiles;
-CREATE POLICY "prediction_profiles_public_read"
-  ON public.prediction_profiles
-  FOR SELECT
-  USING (true);
-
 DROP POLICY IF EXISTS "prediction_profiles_user_insert" ON public.prediction_profiles;
 CREATE POLICY "prediction_profiles_user_insert"
   ON public.prediction_profiles
@@ -92,7 +87,7 @@ SECURITY DEFINER
 SET search_path = public
 AS $$
 BEGIN
-  IF auth.role() <> 'service_role' THEN
+  IF COALESCE(current_setting('request.jwt.claim.role', true), '') <> 'service_role' THEN
     NEW.credits_balance := OLD.credits_balance;
     NEW.role := OLD.role;
   END IF;
@@ -100,7 +95,8 @@ BEGIN
   NEW.updated_at := timezone('utc', now());
   RETURN NEW;
 END;
-$$;
+$;
+REVOKE ALL ON FUNCTION public.prevent_profile_balance_tampering() FROM PUBLIC, anon, authenticated;
 
 DROP TRIGGER IF EXISTS trg_protect_profile_balance
   ON public.prediction_profiles;
@@ -182,21 +178,8 @@ BEGIN
     END IF;
   END LOOP;
 
-  INSERT INTO public.prediction_profiles (
-    id,
-    name,
-    username,
-    avatar_url,
-    bio,
-    credits_balance,
-    role,
-    created_at,
-    updated_at
-  )
-  VALUES (
-    NEW.id,
-    full_name,
-    candidate,
+  INSERT INTO public.prediction_profiles (id, username, display_name, avatar_url, bio, credits_balance, role, created_at, updated_at)
+  VALUES (NEW.id, candidate, full_name,
     NEW.raw_user_meta_data->>'avatar_url',
     COALESCE(NEW.raw_user_meta_data->>'bio', ''),
     10000,
@@ -207,21 +190,8 @@ BEGIN
   ON CONFLICT (id) DO NOTHING;
 
   -- O saldo inicial é registrado uma única vez.
-  INSERT INTO public.prediction_credit_ledger (
-    user_id,
-    type,
-    amount,
-    balance_after,
-    description,
-    created_at
-  )
-  SELECT
-    NEW.id,
-    'INITIAL_BALANCE',
-    10000,
-    10000,
-    'Saldo inicial de boas-vindas da plataforma de palpites',
-    timezone('utc', now())
+  INSERT INTO public.prediction_credit_ledger (user_id, entry_type, amount, balance_after, metadata, created_at)
+  SELECT NEW.id, 'INITIAL_BALANCE', 10000, 10000, jsonb_build_object('source','auth_signup'), timezone('utc', now())
   WHERE NOT EXISTS (
     SELECT 1
     FROM public.prediction_credit_ledger l
@@ -231,7 +201,8 @@ BEGIN
 
   RETURN NEW;
 END;
-$$;
+$;
+REVOKE ALL ON FUNCTION public.handle_new_auth_user() FROM PUBLIC, anon, authenticated;
 
 DROP TRIGGER IF EXISTS on_auth_user_created ON auth.users;
 

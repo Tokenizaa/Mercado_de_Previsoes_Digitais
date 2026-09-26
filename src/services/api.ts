@@ -26,6 +26,16 @@ let authToken: string | null = null;
 export function setAuthToken(token: string | null) { authToken = token; }
 export function getAuthToken() { return authToken; }
 
+export async function syncAuthSession() {
+  const { data } = await supabase.auth.getSession();
+  setAuthToken(data.session?.access_token ?? null);
+  return data.session;
+}
+
+supabase.auth.onAuthStateChange((_event, session) => {
+  setAuthToken(session?.access_token ?? null);
+});
+
 const API_BASE = import.meta.env.VITE_WORKER_API_URL || '/api';
 
 function getAuthHeader(): Record<string, string> {

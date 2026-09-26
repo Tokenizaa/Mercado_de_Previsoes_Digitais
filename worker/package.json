@@ -1,0 +1,18 @@
+{
+  "name": "mercado-previsoes-worker",
+  "version": "1.0.0",
+  "description": "API e motor de resolução do Mercado de Previsões Digitais em Cloudflare Workers",
+  "main": "src/index.ts",
+  "scripts": {
+    "dev": "wrangler dev",
+    "deploy": "wrangler deploy"
+  },
+  "dependencies": {
+    "hono": "^4.7.2"
+  },
+  "devDependencies": {
+    "@cloudflare/workers-types": "^4.20250214.0",
+    "typescript": "^5.7.0",
+    "wrangler": "^3.111.0"
+  }
+}

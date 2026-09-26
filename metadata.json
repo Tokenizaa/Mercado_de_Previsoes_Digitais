@@ -1,0 +1,6 @@
+{
+  "name": "Mercado de Previsões Digitais",
+  "description": "Plataforma brasileira de mercados de previsões sobre eventos da internet, creators, cultura e entretenimento baseada em dados objetivos e verificáveis.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

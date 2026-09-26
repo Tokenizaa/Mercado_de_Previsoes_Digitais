@@ -8,6 +8,10 @@
  * O Supabase é a fonte de verdade para persistência.
  */
 
+import { createClient } from '@supabase/supabase-js';
+
+export const supabase = createClient(import.meta.env.VITE_SUPABASE_URL || 'https://qyjoegombkgkgbvcjvhu.supabase.co', import.meta.env.VITE_SUPABASE_ANON_KEY || 'missing-anon-key');
+
 import {
   PredictionMarket,
   PredictionPosition,

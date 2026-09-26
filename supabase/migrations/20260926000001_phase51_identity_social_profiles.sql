@@ -196,7 +196,7 @@ BEGIN
     SELECT 1
     FROM public.prediction_credit_ledger l
     WHERE l.user_id = NEW.id
-      AND l.type = 'INITIAL_BALANCE'
+      AND l.entry_type = 'INITIAL_BALANCE'
   );
 
   RETURN NEW;

@@ -1,29 +1,100 @@
-# Roadmap Técnico & Evolução de Produto
+# Roadmap Canônico — Mercado de Previsões Digitais
 
-## Fase 1: Fundação & Protótipo Funcional (Concluído)
-- [x] Estrutura unificada: Frontend (React + Vite) + Cloudflare Worker.
-- [x] 4 tipos de mercados operacionais (Resultado, Limiar, Métrica, Ranking).
-- [x] Documentação arquitetural completa versionada.
+Fonte de verdade: este arquivo + docs/DECISIONS.md + histórico de commits do GitHub.
 
-## Fase 2: Canonização Supabase & Conexão do Worker (Fase Atual)
-- [x] Migration canônica com namespace `prediction_*` versionada no GitHub (`supabase/migrations/20260926000000_canonical_prediction_schema.sql`).
-- [x] Cloudflare Worker conectado à API Supabase (`prediction_profiles`, `prediction_markets`, `prediction_positions`, `prediction_activity`, `prediction_resolution_logs`, `prediction_credit_ledger`).
-- [x] Endpoints reais implementados:
-  - `GET /api/health`
-  - `GET /api/markets`
-  - `GET /api/markets/:slug`
-  - `GET /api/sources`
-  - `GET /api/activity`
-  - `GET /api/portfolio`
-  - `POST /api/markets`
-  - `POST /api/markets/:id/positions`
-  - `POST /api/markets/:id/sell`
-  - `POST /api/markets/:id/resolve`
-- [x] Garantia de atomicidade financeira e consistência com `prediction_credit_ledger`.
-- [x] Resolução com evidência e repúdio a vencedor arbitrário enviado pelo cliente.
-- [x] Testes de integração de fluxo ponta a ponta validados.
+## Estado atual
 
-## Fase 3: Adapters de Produção & Cron Triggers
-- [ ] Injeção de credenciais de produção no Cloudflare Worker (`YOUTUBE_API_KEY`, etc.).
-- [ ] Execução periódica de consultas agendadas via Cloudflare Cron Triggers para fechamento pontual de mercados.
-- [ ] Supabase Auth completo no frontend com fluxo de login e recuperação de senha.
+- Fase 1 — Fundação: concluída
+- Fase 2 — Backend canônico: concluída
+- Fase 3 — Resolução automática / fontes reais: planejada
+- Fase 4 — Simplificação do frontend: PRÓXIMA
+- Fase 5 — Golden Path público: futura
+- Fase 6 — Expansão de criação: futura
+
+## Fase 1 — Fundação
+
+Status: CONCLUÍDA
+
+React + Vite + TypeScript, Tailwind, estrutura inicial, Worker, documentação inicial e quatro tipos de mercado.
+
+## Fase 2 — Canonização do backend
+
+Status: CONCLUÍDA
+
+Schema prediction_* no Supabase, RLS, Worker conectado, endpoints reais, ledger de Créditos, persistência, resolução com evidência e testes de fluxo.
+
+Migration canônica: supabase/migrations/20260926000000_canonical_prediction_schema.sql
+
+## Fase 3 — Adapters de produção e resolução automática
+
+Status: PLANEJADA
+
+Objetivos: credenciais reais; YouTube primeiro; Spotify conforme acesso oficial; Google Trends conforme método reproduzível; TikTok/Meta indisponíveis quando exigirem acesso não disponível; Cron periódico; fechamento por close_at; resolução idempotente; logs de evidência; transições seguras.
+
+Regra: não criar um Cron individual por palpite. Usar um Cron periódico que procura palpites vencidos.
+
+A Fase 3 não deve criar novas funcionalidades de frontend.
+
+# Fase 4 — Simplificação radical do frontend
+
+Status: PRÓXIMA
+
+Objetivo: transformar o frontend público em uma experiência brasileira, simples e rápida, com baixa carga de leitura.
+
+### 4.1 Linguagem
+
+- substituir linguagem técnica pública por linguagem comum;
+- adotar palpite como termo principal;
+- frases curtas e perguntas simples;
+- CTAs explícitos;
+- eliminar jargão financeiro;
+- não imitar linguagem de bet/cassino.
+
+### 4.2 UX
+
+- botões grandes;
+- fonte legível;
+- poucas opções por tela;
+- uma ação principal;
+- cards simples;
+- navegação curta;
+- estados fáceis de entender;
+- erros escritos para pessoas, não para desenvolvedores.
+
+### 4.3 Fluxo público
+
+Entrada → Descoberta → Palpite → Escolha → Confirmar → Acompanhar → Resultado.
+
+### 4.4 Remover criação pública
+
+Somente administradores criam e publicam palpites.
+
+Remover da experiência pública: Criar mercado, Meus mercados, ferramentas de criação para usuários e qualquer CTA que sugira criação pública.
+
+### 4.5 Referências de UX
+
+Tinder, Instagram, TikTok, YouTube, WhatsApp e padrões brasileiros de linguagem simples.
+
+Não copiar visual, marca ou identidade desses produtos.
+
+### 4.6 Resultado esperado
+
+O participante deve conseguir entender a pergunta, escolher, confirmar, acompanhar e entender o resultado sem conhecer termos de mercado, finanças ou apostas.
+
+## Fase 5 — Golden Path público
+
+Status: FUTURA
+
+Validar entrada → descoberta → participação → acompanhamento → resultado → Créditos.
+
+## Fase 6 — Expansão de criação
+
+Status: FUTURA
+
+Creators selecionados, criação pela comunidade, moderação e planos de criação poderão ser avaliados somente após o Golden Path estar estável.
+
+## Regra de execução
+
+Uma fase só é concluída quando implementação, testes/validação, documentação e commit estiverem concluídos.
+
+Não avançar de fase carregando pendências silenciosas.
